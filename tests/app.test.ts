@@ -25,6 +25,17 @@ describe('App playable UI', () => {
     expect(wrapper.text()).toContain('Draw');
   });
 
+  it('shows a brief three-stat bar with emoji and no duplicate result', () => {
+    const wrapper = mount(App);
+    const stats = wrapper.find('.stats-grid');
+
+    expect(stats.findAll('dd')).toHaveLength(3);
+    expect(stats.text()).toContain('💰');
+    expect(stats.text()).not.toContain('Result');
+    // The win/lose signal still lives in the control panel below the cards.
+    expect(wrapper.find('.result-message').exists()).toBe(true);
+  });
+
   it('marks a clicked card as held with visible text and aria state', async () => {
     const wrapper = mount(App);
     const firstCard = wrapper.find('.playing-card');
@@ -500,7 +511,7 @@ describe('App auto play', () => {
     expect(wrapper.find('.auto-speed').exists()).toBe(true);
     expect(wrapper.find('.playing-card').attributes('disabled')).toBeDefined();
 
-    const handsPlayed = () => Number(wrapper.findAll('.stats-grid dd')[3].text());
+    const handsPlayed = () => Number(wrapper.findAll('.stats-grid dd')[2].text());
     vi.advanceTimersByTime(650 * 6);
     await nextTick();
     expect(handsPlayed()).toBeGreaterThanOrEqual(1);

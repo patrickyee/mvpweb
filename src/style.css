@@ -251,6 +251,10 @@ select {
   box-shadow: 0 0 0 2px #ffffff;
 }
 
+.playing-card--winning {
+  background: #e4f5ea;
+}
+
 .playing-card--winning::after {
   content: '';
   position: absolute;
@@ -859,6 +863,10 @@ select {
   .playing-card--held {
     border-color: #edc44c;
     background: #514822;
+  }
+
+  .playing-card--winning {
+    background: #20362a;
   }
 
   .playing-card--winning::after {
