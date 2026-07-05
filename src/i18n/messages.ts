@@ -18,6 +18,11 @@ export interface LocaleMessages {
   showStrategyHelp: string;
   hideStrategyHelp: string;
   closeStrategyHelp: string;
+  showHints: string;
+  hideHints: string;
+  hintsLabel: string;
+  recommendedHold: string;
+  winningCard: string;
   credits: string;
   rtp: string;
   result: string;
@@ -54,6 +59,11 @@ export const messages: Record<Locale, LocaleMessages> = {
     showStrategyHelp: 'Show strategy help',
     hideStrategyHelp: 'Hide strategy help',
     closeStrategyHelp: 'Close strategy help',
+    showHints: 'Show hints',
+    hideHints: 'Hide hints',
+    hintsLabel: 'Strategy hints',
+    recommendedHold: 'recommended hold',
+    winningCard: 'winning card',
     credits: 'Credits',
     rtp: 'RTP',
     result: 'Result',
@@ -135,6 +145,11 @@ export const messages: Record<Locale, LocaleMessages> = {
     showStrategyHelp: '顯示策略說明',
     hideStrategyHelp: '隱藏策略說明',
     closeStrategyHelp: '關閉策略說明',
+    showHints: '顯示提示',
+    hideHints: '隱藏提示',
+    hintsLabel: '策略提示',
+    recommendedHold: '建議保留',
+    winningCard: '獲勝牌',
     credits: '點數',
     rtp: 'RTP',
     result: '結果',

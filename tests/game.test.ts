@@ -10,7 +10,7 @@ import {
   toggleHold,
 } from '../src/game/gameState';
 import type { GameStateWithRtp } from '../src/game/gameState';
-import { evaluateHand, payoutForHand } from '../src/game/handEvaluator';
+import { evaluateHand, payoutForHand, winningCardIds } from '../src/game/handEvaluator';
 import type { Card, Rank, Suit } from '../src/game/types';
 
 function c(rank: Rank, suit: Suit): Card {
@@ -131,6 +131,49 @@ describe('payouts', () => {
     [0, [c('2', 'hearts'), c('5', 'diamonds'), c('8', 'clubs'), c('10', 'spades'), c('king', 'hearts')]],
   ])('returns payout %i', (expected, hand) => {
     expect(payoutForHand(hand)).toBe(expected);
+  });
+});
+
+describe('winning card ids', () => {
+  function ids(cards: Card[]): string[] {
+    return cards.map((card) => card.id).sort();
+  }
+
+  function sorted(hand: Card[]): string[] {
+    return [...winningCardIds(hand)].sort();
+  }
+
+  it('returns the whole hand for straights, flushes, and full houses', () => {
+    const straight = [c('6', 'hearts'), c('7', 'diamonds'), c('8', 'clubs'), c('9', 'spades'), c('10', 'hearts')];
+    expect(sorted(straight)).toEqual(ids(straight));
+
+    const flush = [c('2', 'clubs'), c('5', 'clubs'), c('8', 'clubs'), c('jack', 'clubs'), c('king', 'clubs')];
+    expect(sorted(flush)).toEqual(ids(flush));
+
+    const fullHouse = [c('queen', 'hearts'), c('queen', 'diamonds'), c('queen', 'clubs'), c('4', 'spades'), c('4', 'hearts')];
+    expect(sorted(fullHouse)).toEqual(ids(fullHouse));
+  });
+
+  it('returns only the matched ranks for quads, trips, two pair, and a high pair', () => {
+    const quad = [c('9', 'hearts'), c('9', 'diamonds'), c('9', 'clubs'), c('9', 'spades')];
+    expect(sorted([...quad, c('king', 'hearts')])).toEqual(ids(quad));
+
+    const trips = [c('3', 'hearts'), c('3', 'diamonds'), c('3', 'clubs')];
+    expect(sorted([...trips, c('8', 'spades'), c('king', 'hearts')])).toEqual(ids(trips));
+
+    const twoPair = [c('5', 'hearts'), c('5', 'diamonds'), c('jack', 'clubs'), c('jack', 'spades')];
+    expect(sorted([...twoPair, c('2', 'hearts')])).toEqual(ids(twoPair));
+
+    const highPair = [c('jack', 'hearts'), c('jack', 'diamonds')];
+    expect(sorted([...highPair, c('3', 'clubs'), c('8', 'spades'), c('king', 'hearts')])).toEqual(ids(highPair));
+  });
+
+  it('returns nothing for a low pair or a non-scoring high card', () => {
+    const lowPair = [c('5', 'hearts'), c('5', 'diamonds'), c('2', 'clubs'), c('9', 'spades'), c('king', 'diamonds')];
+    expect(winningCardIds(lowPair)).toEqual([]);
+
+    const highCard = [c('2', 'hearts'), c('5', 'diamonds'), c('8', 'clubs'), c('10', 'spades'), c('king', 'hearts')];
+    expect(winningCardIds(highCard)).toEqual([]);
   });
 });
 

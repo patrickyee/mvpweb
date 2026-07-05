@@ -147,7 +147,14 @@ Acceptance:
 - Hint mode can be enabled/disabled without starting a new hand.
 - Existing game logic and payouts are unchanged.
 
-Status: planned.
+Status: implemented in the current Vue codebase. The deterministic evaluator lives in
+`src/game/strategy.ts` (`recommendHolds`), reusing `RANK_VALUES` and `evaluateHand`
+and following the 16-row `strategyRows` priority order. A header hint toggle in
+`App.vue` drives a `recommendedIds` computed that marks recommended cards in
+`PlayingCard.vue` (dashed blue ring plus corner dot and an aria suffix), visually
+distinct from the gold held state and never altering held state. Unit tests cover a
+representative hand per priority (`tests/strategy.test.ts`); App tests cover the
+toggle and non-mutation of hold state (`tests/app.test.ts`).
 
 ## Phase 9: Auto Play Mode
 
@@ -199,7 +206,7 @@ Status: planned. Do not implement until the graphical card asset source is selec
 
 Current status:
 
-- Phase 1, Phase 2, Phase 3, Phase 4, Phase 5, Phase 6, and Phase 7 are implemented. Phases 8, 9, and 10 are planned.
+- Phases 1 through 8 are implemented. Phases 9 and 10 are planned.
 - The app is a Vue 3 + TypeScript + Vite SPA using npm and Vitest.
 - Core Jacks-or-Better game logic is implemented and covered by unit tests.
 - The playable game UI is wired to the game-state functions.
@@ -207,6 +214,7 @@ Current status:
 - A follow-up UI refinement changed Help to a circular `?` control, moved strategy help into a dismissible overlay, removed the visible `Video Poker` title, locked cards to a `5:7` aspect ratio, and stabilized card keys to prevent hold-toggle reflow.
 - A compact UI refinement balanced card typography with rank-only corners, rendered strategy guidance as a table, and tightened spacing for mobile landscape browsers.
 - English and Traditional Chinese localization are implemented with a local i18n layer and segmented header language control.
+- Phase 8 added a deterministic strategy engine (`src/game/strategy.ts`) and an optional hint mode toggled from the header; hints mark recommended cards without changing hold state.
 - Final automated release-readiness checks pass.
 - Cards use the simple CSS/HTML rank-corner and center-suit rendering until Phase 10 assets are selected.
 
@@ -227,4 +235,4 @@ Do not create additional documentation files unless explicitly instructed.
 
 Next target:
 
-- Start Phase 8 by implementing the deterministic strategy engine and hint mode.
+- Start Phase 9 by implementing auto play mode, reusing the Phase 8 `recommendHolds` evaluator.

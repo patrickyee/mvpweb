@@ -4,6 +4,10 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import App from '../src/App.vue';
 import GameControls from '../src/components/GameControls.vue';
 import StrategyPanel from '../src/components/StrategyPanel.vue';
+import { createCard } from '../src/game/deck';
+import { payoutForHand, winningCardIds } from '../src/game/handEvaluator';
+import { recommendHolds } from '../src/game/strategy';
+import type { Rank, Suit } from '../src/game/types';
 import { useI18n } from '../src/i18n/useI18n';
 
 describe('App playable UI', () => {
@@ -252,5 +256,96 @@ describe('StrategyPanel', () => {
     expect(wrapper.findAll('thead th').map((cell) => cell.text())).toEqual(['#', '打法']);
     expect(wrapper.text()).toContain('四條、同花順、皇家同花順');
     expect(wrapper.text()).toContain('全部棄牌');
+  });
+});
+
+// Reconstruct the dealt hand from the English card aria-labels ("Hold ace of hearts").
+function readHandIds(labels: (string | undefined)[]): string[] {
+  return labels.map((label) => {
+    const match = /^(?:Hold|Release) (\S+) of (\S+)/.exec(label ?? '');
+    if (!match) {
+      throw new Error(`Unexpected card label: ${label}`);
+    }
+    return createCard(match[1] as Rank, match[2] as Suit).id;
+  });
+}
+
+describe('App hint mode', () => {
+  beforeEach(() => {
+    useI18n().setLocale('en');
+  });
+
+  it('shows no recommendations until hint mode is enabled', () => {
+    const wrapper = mount(App);
+
+    expect(wrapper.find('.hint-toggle').attributes('aria-pressed')).toBe('false');
+    expect(wrapper.findAll('.playing-card--recommended')).toHaveLength(0);
+  });
+
+  it('marks exactly the strategy-recommended cards when enabled', async () => {
+    const wrapper = mount(App);
+    await wrapper.find('.hint-toggle').trigger('click');
+
+    const cards = wrapper.findAll('.playing-card');
+    const handIds = readHandIds(cards.map((card) => card.attributes('aria-label')));
+    const recommended = new Set(recommendHolds(handIds.map((id) => {
+      const [rank, , suit] = id.split('-');
+      return createCard(rank as Rank, suit as Suit);
+    })));
+
+    cards.forEach((card, index) => {
+      expect(card.classes().includes('playing-card--recommended')).toBe(recommended.has(handIds[index]));
+    });
+    expect(wrapper.find('.hint-toggle').attributes('aria-pressed')).toBe('true');
+  });
+
+  it('does not change held state or deal a new hand when toggled', async () => {
+    const wrapper = mount(App);
+    const before = wrapper.findAll('.playing-card');
+    const heldBefore = before.map((card) => card.attributes('aria-pressed'));
+    const handBefore = readHandIds(before.map((card) => card.attributes('aria-label')));
+
+    await wrapper.find('.hint-toggle').trigger('click');
+
+    const after = wrapper.findAll('.playing-card');
+    const heldAfter = after.map((card) => card.attributes('aria-pressed'));
+    const handAfter = readHandIds(after.map((card) => card.attributes('aria-label')));
+
+    expect(heldAfter).toEqual(heldBefore);
+    expect(handAfter).toEqual(handBefore);
+  });
+});
+
+describe('App win highlight', () => {
+  beforeEach(() => {
+    useI18n().setLocale('en');
+  });
+
+  it('hides the held annotation once the hand is revealed', async () => {
+    const wrapper = mount(App);
+    await wrapper.find('.playing-card').trigger('click');
+    expect(wrapper.find('.playing-card--held').exists()).toBe(true);
+
+    await wrapper.find('.primary-action').trigger('click');
+
+    expect(wrapper.find('.playing-card--held').exists()).toBe(false);
+    expect(wrapper.text()).not.toContain('Held');
+  });
+
+  it('annotates exactly the winning group after the draw', async () => {
+    const wrapper = mount(App);
+    await wrapper.find('.primary-action').trigger('click');
+
+    const cards = wrapper.findAll('.playing-card');
+    const handIds = readHandIds(cards.map((card) => card.attributes('aria-label')));
+    const hand = handIds.map((id) => {
+      const [rank, , suit] = id.split('-');
+      return createCard(rank as Rank, suit as Suit);
+    });
+    const expected = new Set(payoutForHand(hand) > 0 ? winningCardIds(hand) : []);
+
+    cards.forEach((card, index) => {
+      expect(card.classes().includes('playing-card--winning')).toBe(expected.has(handIds[index]));
+    });
   });
 });

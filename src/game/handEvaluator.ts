@@ -68,6 +68,53 @@ export function payoutForHand(cards: readonly Card[], bet = 1): number {
   return PAYOUTS[evaluateHand(cards)] * bet;
 }
 
+const WHOLE_HAND_RANKS = new Set<HandRank>([
+  'royalFlush',
+  'straightFlush',
+  'flush',
+  'straight',
+  'fullHouse',
+]);
+
+/**
+ * Returns the ids of the cards that make up the scoring combination for the given
+ * five-card hand: the whole hand for straights/flushes/full houses, the matched
+ * ranks for quads/trips/pairs, and nothing for a non-scoring high card.
+ */
+export function winningCardIds(cards: readonly Card[]): string[] {
+  const rank = evaluateHand(cards);
+
+  if (rank === 'highCard') {
+    return [];
+  }
+
+  if (WHOLE_HAND_RANKS.has(rank)) {
+    return cards.map((card) => card.id);
+  }
+
+  const groups = new Map<number, Card[]>();
+  for (const card of cards) {
+    const value = RANK_VALUES[card.rank];
+    groups.set(value, [...(groups.get(value) ?? []), card]);
+  }
+
+  const matched = (predicate: (group: Card[]) => boolean): string[] =>
+    [...groups.values()].filter(predicate).flatMap((group) => group.map((card) => card.id));
+
+  switch (rank) {
+    case 'fourOfAKind':
+      return matched((group) => group.length === 4);
+    case 'threeOfAKind':
+      return matched((group) => group.length === 3);
+    case 'twoPair':
+      return matched((group) => group.length === 2);
+    case 'jacksOrBetter':
+      return matched((group) => group.length === 2 && RANK_VALUES[group[0].rank] >= 11);
+    default:
+      return [];
+  }
+}
+
 function countRanks(values: readonly number[]): number[] {
   const counts = new Map<number, number>();
 

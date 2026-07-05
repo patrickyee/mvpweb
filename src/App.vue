@@ -5,15 +5,29 @@ import GameStats from './components/GameStats.vue';
 import PlayingCard from './components/PlayingCard.vue';
 import StrategyPanel from './components/StrategyPanel.vue';
 import { createInitialGameState, dealNewHand, draw, nextHand, toggleHold } from './game/gameState';
+import { winningCardIds } from './game/handEvaluator';
+import { recommendHolds } from './game/strategy';
 import { type Locale } from './i18n/messages';
 import { useI18n } from './i18n/useI18n';
 
 const game = ref(dealNewHand(createInitialGameState()));
 const isStrategyOpen = ref(false);
+const hintMode = ref(false);
 const { locale, messages, setLocale, t } = useI18n();
 
 const rtpLabel = computed(() => `${game.value.rtp.toFixed(2)}%`);
 const isHolding = computed(() => game.value.phase === 'holding');
+const recommendedIds = computed(
+  () => new Set(hintMode.value && isHolding.value ? recommendHolds(game.value.hand) : []),
+);
+const winningIds = computed(
+  () =>
+    new Set(
+      game.value.phase === 'evaluating' && game.value.lastWin > 0
+        ? winningCardIds(game.value.hand)
+        : [],
+    ),
+);
 const canContinue = computed(() => game.value.credits >= 1);
 const lastResult = computed(() => {
   if (game.value.phase === 'holding') {
@@ -70,6 +84,10 @@ function handleNextHand(): void {
 
 function toggleStrategy(): void {
   isStrategyOpen.value = !isStrategyOpen.value;
+}
+
+function toggleHint(): void {
+  hintMode.value = !hintMode.value;
 }
 
 function closeStrategy(): void {
@@ -129,6 +147,17 @@ watchEffect(() => {
           </div>
 
           <button
+            class="hint-toggle"
+            :class="{ 'hint-toggle--active': hintMode }"
+            type="button"
+            :aria-pressed="hintMode"
+            :aria-label="hintMode ? messages.hideHints : messages.showHints"
+            @click="toggleHint"
+          >
+            <span aria-hidden="true">💡</span>
+          </button>
+
+          <button
             class="help-toggle"
             type="button"
             :aria-expanded="isStrategyOpen"
@@ -153,6 +182,8 @@ watchEffect(() => {
             :key="card.id"
             :card="card"
             :disabled="!isHolding"
+            :recommended="recommendedIds.has(card.id)"
+            :winning="winningIds.has(card.id)"
             @toggle="handleToggle"
           />
         </section>

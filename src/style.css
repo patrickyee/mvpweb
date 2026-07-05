@@ -137,6 +137,34 @@ select {
   outline-offset: 3px;
 }
 
+.hint-toggle {
+  width: 34px;
+  height: 34px;
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid rgb(23 32 24 / 0.18);
+  border-radius: 50%;
+  color: #17351f;
+  background: #ffffff;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.hint-toggle:hover {
+  background: #eef7ef;
+}
+
+.hint-toggle--active {
+  border-color: #2f7bff;
+  background: #e8f0ff;
+}
+
+.hint-toggle:focus-visible {
+  outline: 3px solid #2f7bff;
+  outline-offset: 3px;
+}
+
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -212,6 +240,26 @@ select {
 .playing-card--held {
   border-color: #c99400;
   background: #fff5cf;
+}
+
+.hint-dot {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #2f7bff;
+  box-shadow: 0 0 0 2px #ffffff;
+}
+
+.playing-card--winning::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border: 2px dashed #1f9d57;
+  border-radius: 6px;
+  pointer-events: none;
 }
 
 .card-corner {
@@ -506,7 +554,8 @@ select {
     font-size: 0.68rem;
   }
 
-  .help-toggle {
+  .help-toggle,
+  .hint-toggle {
     width: 30px;
     height: 30px;
     font-size: 0.95rem;
@@ -641,6 +690,25 @@ select {
     background: #233328;
   }
 
+  .hint-toggle {
+    border-color: rgb(237 244 239 / 0.16);
+    color: #edf4ef;
+    background: #1a251d;
+  }
+
+  .hint-toggle:hover {
+    background: #233328;
+  }
+
+  .hint-toggle--active {
+    border-color: #6ea8ff;
+    background: #1c3357;
+  }
+
+  .hint-dot {
+    box-shadow: 0 0 0 2px #25302a;
+  }
+
   .language-toggle {
     border-color: rgb(237 244 239 / 0.16);
     background: #1a251d;
@@ -682,6 +750,10 @@ select {
   .playing-card--held {
     border-color: #edc44c;
     background: #514822;
+  }
+
+  .playing-card--winning::after {
+    border-color: #7ee0a4;
   }
 
   .result-message--win {
