@@ -1,0 +1,112 @@
+:root {
+  color: #172018;
+  background: #eef3ef;
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+.game-shell {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background:
+    radial-gradient(circle at top left, rgb(255 255 255 / 0.72), transparent 28rem),
+    linear-gradient(135deg, #eef3ef, #d7e2da);
+}
+
+.game-surface {
+  width: min(720px, 100%);
+  padding: 24px;
+  border: 1px solid rgb(23 32 24 / 0.12);
+  border-radius: 8px;
+  background: rgb(255 255 255 / 0.76);
+  box-shadow: 0 18px 50px rgb(23 32 24 / 0.12);
+}
+
+.game-header {
+  margin-bottom: 24px;
+}
+
+.eyebrow {
+  margin: 0 0 4px;
+  color: #2d6f4b;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(2rem, 8vw, 3rem);
+  line-height: 1;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+}
+
+.stats-grid div {
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid rgb(23 32 24 / 0.12);
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.stats-grid dt {
+  color: #5f6c62;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.stats-grid dd {
+  margin: 6px 0 0;
+  font-size: 1.45rem;
+  font-weight: 800;
+}
+
+.phase-note {
+  margin: 24px 0 0;
+  color: #435047;
+  line-height: 1.5;
+}
+
+@media (max-width: 560px) {
+  .game-shell {
+    padding: 16px;
+  }
+
+  .game-surface {
+    padding: 18px;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
