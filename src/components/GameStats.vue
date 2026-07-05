@@ -2,9 +2,10 @@
 import { useI18n } from '../i18n/useI18n';
 
 defineProps<{
-  credits: number;
+  credits: string;
   rtp: string;
   handsPlayed: number;
+  totalWager: string;
 }>();
 
 const { messages } = useI18n();
@@ -26,12 +27,19 @@ const { messages } = useI18n();
       </dt>
       <dd>{{ rtp }}</dd>
     </div>
-    <div>
+    <div class="stat-push">
       <dt>
         <span aria-hidden="true">🃏</span>
         <span class="visually-hidden">{{ messages.hands }}</span>
       </dt>
       <dd>{{ handsPlayed }}</dd>
+    </div>
+    <div>
+      <dt>
+        <span aria-hidden="true">💵</span>
+        <span class="visually-hidden">{{ messages.totalWager }}</span>
+      </dt>
+      <dd>{{ totalWager }}</dd>
     </div>
   </dl>
 </template>

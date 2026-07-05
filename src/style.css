@@ -178,6 +178,10 @@ select {
   gap: 6px;
 }
 
+.stats-grid .stat-push {
+  margin-left: auto;
+}
+
 .stats-grid dt {
   font-size: 1rem;
   line-height: 1;

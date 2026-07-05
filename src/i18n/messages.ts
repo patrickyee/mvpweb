@@ -26,6 +26,7 @@ export interface LocaleMessages {
   credits: string;
   rtp: string;
   hands: string;
+  totalWager: string;
   draw: string;
   nextHand: string;
   chooseCards: string;
@@ -71,6 +72,7 @@ export const messages: Record<Locale, LocaleMessages> = {
     credits: 'Credits',
     rtp: 'RTP',
     hands: 'Hands',
+    totalWager: 'Total wager',
     draw: 'Draw',
     nextHand: 'Next Hand',
     chooseCards: 'Choose cards to hold, then draw.',
@@ -161,6 +163,7 @@ export const messages: Record<Locale, LocaleMessages> = {
     credits: '點數',
     rtp: 'RTP',
     hands: '手數',
+    totalWager: '總下注',
     draw: '換牌',
     nextHand: '下一手',
     chooseCards: '選擇要保留的牌，然後換牌。',

@@ -5,7 +5,7 @@ import GameStats from './components/GameStats.vue';
 import PlayingCard from './components/PlayingCard.vue';
 import StrategyPanel from './components/StrategyPanel.vue';
 import { createInitialGameState, dealNewHand, draw, nextHand, toggleHold } from './game/gameState';
-import { winningCardIds } from './game/handEvaluator';
+import { winningCardIds, WAGER } from './game/handEvaluator';
 import { recommendHolds } from './game/strategy';
 import { useAutoPlay, type AutoPlaySpeed } from './composables/useAutoPlay';
 import { type Locale } from './i18n/messages';
@@ -24,7 +24,9 @@ const {
   stop: stopAutoPlay,
 } = useAutoPlay(game);
 
+const creditsLabel = computed(() => game.value.credits.toFixed(2));
 const rtpLabel = computed(() => `${game.value.rtp.toFixed(2)}%`);
+const totalWagerLabel = computed(() => (WAGER * game.value.handsPlayed).toFixed(2));
 const isHolding = computed(() => game.value.phase === 'holding');
 const recommendedIds = computed(
   () =>
@@ -40,7 +42,7 @@ const winningIds = computed(
         : [],
     ),
 );
-const canContinue = computed(() => game.value.credits >= 1);
+const canContinue = computed(() => game.value.credits >= WAGER);
 
 const resultMessage = computed(() => {
   if (game.value.phase === 'holding') {
@@ -50,7 +52,7 @@ const resultMessage = computed(() => {
   if (game.value.lastWin > 0 && game.value.lastWinningHandRank) {
     return t(messages.value.winningPayout, {
       handRank: messages.value.handRanks[game.value.lastWinningHandRank],
-      amount: game.value.lastWin,
+      amount: game.value.lastWin.toFixed(2),
     });
   }
 
@@ -199,9 +201,10 @@ watchEffect(() => {
         </header>
 
         <GameStats
-          :credits="game.credits"
+          :credits="creditsLabel"
           :rtp="rtpLabel"
           :hands-played="game.handsPlayed"
+          :total-wager="totalWagerLabel"
         />
 
         <section class="card-row" :aria-label="messages.currentHandLabel">

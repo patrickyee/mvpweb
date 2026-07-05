@@ -1,17 +1,17 @@
 import { describe, expect, it } from 'vitest';
 import { createCard, createDeck, dealCards } from '../src/game/deck';
 import {
-  BET_SIZE,
   calculateRtp,
   createInitialGameState,
   dealNewHand,
   draw,
   nextHand,
   setHolds,
+  STARTING_CREDITS,
   toggleHold,
 } from '../src/game/gameState';
 import type { GameStateWithRtp } from '../src/game/gameState';
-import { evaluateHand, payoutForHand, winningCardIds } from '../src/game/handEvaluator';
+import { evaluateHand, payoutForHand, WAGER, winningCardIds } from '../src/game/handEvaluator';
 import type { Card, Rank, Suit } from '../src/game/types';
 
 function c(rank: Rank, suit: Suit): Card {
@@ -120,17 +120,17 @@ describe('hand evaluation', () => {
 
 describe('payouts', () => {
   it.each([
-    [800, [c('10', 'hearts'), c('jack', 'hearts'), c('queen', 'hearts'), c('king', 'hearts'), c('ace', 'hearts')]],
-    [50, [c('5', 'spades'), c('6', 'spades'), c('7', 'spades'), c('8', 'spades'), c('9', 'spades')]],
-    [25, [c('9', 'hearts'), c('9', 'diamonds'), c('9', 'clubs'), c('9', 'spades'), c('king', 'hearts')]],
-    [9, [c('queen', 'hearts'), c('queen', 'diamonds'), c('queen', 'clubs'), c('4', 'spades'), c('4', 'hearts')]],
-    [6, [c('2', 'clubs'), c('5', 'clubs'), c('8', 'clubs'), c('jack', 'clubs'), c('king', 'clubs')]],
-    [4, [c('6', 'hearts'), c('7', 'diamonds'), c('8', 'clubs'), c('9', 'spades'), c('10', 'hearts')]],
-    [3, [c('3', 'hearts'), c('3', 'diamonds'), c('3', 'clubs'), c('8', 'spades'), c('king', 'hearts')]],
-    [2, [c('5', 'hearts'), c('5', 'diamonds'), c('jack', 'clubs'), c('jack', 'spades'), c('2', 'hearts')]],
-    [1, [c('jack', 'hearts'), c('jack', 'diamonds'), c('3', 'clubs'), c('8', 'spades'), c('king', 'hearts')]],
+    [375, [c('10', 'hearts'), c('jack', 'hearts'), c('queen', 'hearts'), c('king', 'hearts'), c('ace', 'hearts')]],
+    [62.5, [c('5', 'spades'), c('6', 'spades'), c('7', 'spades'), c('8', 'spades'), c('9', 'spades')]],
+    [31.25, [c('9', 'hearts'), c('9', 'diamonds'), c('9', 'clubs'), c('9', 'spades'), c('king', 'hearts')]],
+    [7.5, [c('queen', 'hearts'), c('queen', 'diamonds'), c('queen', 'clubs'), c('4', 'spades'), c('4', 'hearts')]],
+    [6.25, [c('2', 'clubs'), c('5', 'clubs'), c('8', 'clubs'), c('jack', 'clubs'), c('king', 'clubs')]],
+    [5, [c('6', 'hearts'), c('7', 'diamonds'), c('8', 'clubs'), c('9', 'spades'), c('10', 'hearts')]],
+    [3.75, [c('3', 'hearts'), c('3', 'diamonds'), c('3', 'clubs'), c('8', 'spades'), c('king', 'hearts')]],
+    [2.5, [c('5', 'hearts'), c('5', 'diamonds'), c('jack', 'clubs'), c('jack', 'spades'), c('2', 'hearts')]],
+    [1.25, [c('jack', 'hearts'), c('jack', 'diamonds'), c('3', 'clubs'), c('8', 'spades'), c('king', 'hearts')]],
     [0, [c('2', 'hearts'), c('5', 'diamonds'), c('8', 'clubs'), c('10', 'spades'), c('king', 'hearts')]],
-  ])('returns payout %i', (expected, hand) => {
+  ])('returns payout %d', (expected, hand) => {
     expect(payoutForHand(hand)).toBe(expected);
   });
 });
@@ -203,13 +203,14 @@ describe('setHolds', () => {
 });
 
 describe('game state', () => {
-  it('starts a new hand by charging one credit and recording the bet', () => {
+  it('starts a new hand by charging the wager and recording the bet', () => {
     const state = dealNewHand(createInitialGameState(), fixedRandom);
 
     expect(state.hand).toHaveLength(5);
     expect(state.deck).toHaveLength(47);
-    expect(state.credits).toBe(1000 - BET_SIZE);
-    expect(state.totalBets).toBe(BET_SIZE);
+    expect(state.credits).toBe(STARTING_CREDITS - WAGER);
+    expect(state.totalBets).toBe(WAGER);
+    expect(state.handsPlayed).toBe(1);
     expect(state.phase).toBe('holding');
   });
 
@@ -256,12 +257,11 @@ describe('game state', () => {
     }
     const result = draw(heldState);
 
-    expect(result.lastWin).toBe(800);
+    expect(result.lastWin).toBe(375);
     expect(result.lastWinningHandRank).toBe('royalFlush');
-    expect(result.credits).toBe(1799);
-    expect(result.totalWinnings).toBe(800);
-    expect(result.handsPlayed).toBe(1);
-    expect(result.rtp).toBe(80000);
+    expect(result.credits).toBe(999 + 375);
+    expect(result.totalWinnings).toBe(375);
+    expect(result.rtp).toBe(37500);
   });
 
   it('updates stats for a losing draw', () => {
@@ -288,7 +288,6 @@ describe('game state', () => {
     expect(result.lastWinningHandRank).toBeNull();
     expect(result.credits).toBe(999);
     expect(result.totalWinnings).toBe(0);
-    expect(result.handsPlayed).toBe(1);
   });
 
   it('starts the next hand after evaluation', () => {
@@ -308,8 +307,8 @@ describe('game state', () => {
     expect(result.hand).toHaveLength(5);
     expect(result.lastWin).toBe(0);
     expect(result.lastWinningHandRank).toBeNull();
-    expect(result.credits).toBe(1000);
-    expect(result.totalBets).toBe(2);
+    expect(result.credits).toBe(1001 - WAGER);
+    expect(result.totalBets).toBe(1 + WAGER);
   });
 
   it('calculates RTP with and without bets', () => {

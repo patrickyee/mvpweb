@@ -1,16 +1,19 @@
 import { RANK_VALUES, type Card, type HandRank } from './types';
 
+const FACTOR = 0.25;
+export const WAGER = 5 * FACTOR;
+
 export const PAYOUTS: Record<HandRank, number> = {
-  royalFlush: 800,
-  straightFlush: 50,
-  fourOfAKind: 25,
-  fullHouse: 9,
-  flush: 6,
-  straight: 4,
-  threeOfAKind: 3,
-  twoPair: 2,
-  jacksOrBetter: 1,
-  highCard: 0,
+  royalFlush: 1500 * FACTOR,
+  straightFlush: 250 * FACTOR,
+  fourOfAKind: 125 * FACTOR,
+  fullHouse: 30 * FACTOR,
+  flush: 25 * FACTOR,
+  straight: 20 * FACTOR,
+  threeOfAKind: 15 * FACTOR,
+  twoPair: 10 * FACTOR,
+  jacksOrBetter: 5 * FACTOR,
+  highCard: 0 * FACTOR,
 };
 
 export function evaluateHand(cards: readonly Card[]): HandRank {

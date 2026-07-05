@@ -1,9 +1,8 @@
 import { createDeck, dealCards, shuffleDeck } from './deck';
-import { evaluateHand, payoutForHand } from './handEvaluator';
+import { evaluateHand, payoutForHand, WAGER } from './handEvaluator';
 import type { Card, GameState } from './types';
 
-export const STARTING_CREDITS = 1000;
-export const BET_SIZE = 1;
+export const STARTING_CREDITS = 100;
 export const HAND_SIZE = 5;
 
 export type RandomSource = () => number;
@@ -30,7 +29,7 @@ export function dealNewHand(
   state: GameState,
   random: RandomSource = Math.random,
 ): GameStateWithRtp {
-  if (state.credits < BET_SIZE) {
+  if (state.credits < WAGER) {
     return withRtp(state);
   }
 
@@ -41,11 +40,12 @@ export function dealNewHand(
     ...state,
     deck: deal.deck,
     hand: deal.hand,
-    credits: state.credits - BET_SIZE,
+    credits: state.credits - WAGER,
     phase: 'holding',
     lastWin: 0,
     lastWinningHandRank: null,
-    totalBets: state.totalBets + BET_SIZE,
+    handsPlayed: state.handsPlayed + 1,
+    totalBets: state.totalBets + WAGER,
   });
 }
 
@@ -97,7 +97,7 @@ export function draw(state: GameState): GameStateWithRtp {
   });
 
   const handRank = evaluateHand(hand);
-  const lastWin = payoutForHand(hand, BET_SIZE);
+  const lastWin = payoutForHand(hand);
 
   return withRtp({
     ...state,
@@ -107,7 +107,6 @@ export function draw(state: GameState): GameStateWithRtp {
     phase: 'evaluating',
     lastWin,
     lastWinningHandRank: lastWin > 0 ? handRank : null,
-    handsPlayed: state.handsPlayed + 1,
     totalWinnings: state.totalWinnings + lastWin,
   });
 }

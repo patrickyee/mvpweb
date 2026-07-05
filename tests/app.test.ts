@@ -21,17 +21,20 @@ describe('App playable UI', () => {
 
     expect(cards).toHaveLength(5);
     expect(wrapper.text()).toContain('Credits');
-    expect(wrapper.text()).toContain('999');
+    expect(wrapper.text()).toContain('98.75');
     expect(wrapper.text()).toContain('Draw');
   });
 
   it('shows a brief three-stat bar with emoji and no duplicate result', () => {
     const wrapper = mount(App);
     const stats = wrapper.find('.stats-grid');
+    const values = stats.findAll('dd');
 
-    expect(stats.findAll('dd')).toHaveLength(3);
+    expect(values).toHaveLength(4);
     expect(stats.text()).toContain('💰');
     expect(stats.text()).not.toContain('Result');
+    // The opening hand is already dealt and wagered, so total wager reflects it.
+    expect(values[3].text()).toBe('1.25');
     // The win/lose signal still lives in the control panel below the cards.
     expect(wrapper.find('.result-message').exists()).toBe(true);
   });
