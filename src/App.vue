@@ -1,40 +1,47 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, watchEffect } from 'vue';
 import GameControls from './components/GameControls.vue';
 import GameStats from './components/GameStats.vue';
 import PlayingCard from './components/PlayingCard.vue';
 import StrategyPanel from './components/StrategyPanel.vue';
 import { createInitialGameState, dealNewHand, draw, nextHand, toggleHold } from './game/gameState';
-import { HAND_RANK_LABELS } from './game/types';
+import { type Locale } from './i18n/messages';
+import { useI18n } from './i18n/useI18n';
 
 const game = ref(dealNewHand(createInitialGameState()));
 const isStrategyOpen = ref(false);
+const { locale, messages, setLocale, t } = useI18n();
 
 const rtpLabel = computed(() => `${game.value.rtp.toFixed(2)}%`);
 const isHolding = computed(() => game.value.phase === 'holding');
 const canContinue = computed(() => game.value.credits >= 1);
 const lastResult = computed(() => {
   if (game.value.phase === 'holding') {
-    return 'Playing';
+    return messages.value.playing;
   }
 
-  return game.value.lastWin > 0 ? `Win ${game.value.lastWin}` : 'Lose';
+  return game.value.lastWin > 0
+    ? t(messages.value.winResult, { amount: game.value.lastWin })
+    : messages.value.lose;
 });
 
 const resultMessage = computed(() => {
   if (game.value.phase === 'holding') {
-    return 'Choose cards to hold, then draw.';
+    return messages.value.chooseCards;
   }
 
   if (game.value.lastWin > 0 && game.value.lastWinningHandRank) {
-    return `${HAND_RANK_LABELS[game.value.lastWinningHandRank]} pays ${game.value.lastWin}.`;
+    return t(messages.value.winningPayout, {
+      handRank: messages.value.handRanks[game.value.lastWinningHandRank],
+      amount: game.value.lastWin,
+    });
   }
 
   if (!canContinue.value) {
-    return 'Lose. Out of credits.';
+    return messages.value.outOfCredits;
   }
 
-  return 'Lose. Try the next hand.';
+  return messages.value.tryNextHand;
 });
 
 const resultTone = computed(() => {
@@ -82,6 +89,10 @@ onMounted(() => {
 onBeforeUnmount(() => {
   window.removeEventListener('keydown', handleEscape);
 });
+
+watchEffect(() => {
+  document.title = messages.value.appTitle;
+});
 </script>
 
 <template>
@@ -90,8 +101,31 @@ onBeforeUnmount(() => {
       <section class="game-surface">
         <header class="game-header">
           <div>
-            <h1 id="game-title" class="visually-hidden">Jacks or Better</h1>
-            <p class="eyebrow">Jacks or Better</p>
+            <h1 id="game-title" class="visually-hidden">{{ messages.appTitle }}</h1>
+            <p class="eyebrow">{{ messages.appTitle }}</p>
+          </div>
+
+          <div class="language-toggle" role="group" :aria-label="messages.languageLabel">
+            <button
+              type="button"
+              :class="{ 'language-toggle__button--active': locale === 'en' }"
+              class="language-toggle__button"
+              :aria-pressed="locale === 'en'"
+              aria-label="Switch to English"
+              @click="setLocale('en' as Locale)"
+            >
+              EN
+            </button>
+            <button
+              type="button"
+              :class="{ 'language-toggle__button--active': locale === 'zh-Hant' }"
+              class="language-toggle__button"
+              :aria-pressed="locale === 'zh-Hant'"
+              aria-label="切換至繁體中文"
+              @click="setLocale('zh-Hant' as Locale)"
+            >
+              繁
+            </button>
           </div>
 
           <button
@@ -99,7 +133,7 @@ onBeforeUnmount(() => {
             type="button"
             :aria-expanded="isStrategyOpen"
             aria-controls="strategy-panel"
-            :aria-label="isStrategyOpen ? 'Hide strategy help' : 'Show strategy help'"
+            :aria-label="isStrategyOpen ? messages.hideStrategyHelp : messages.showStrategyHelp"
             @click="toggleStrategy"
           >
             <span aria-hidden="true">?</span>
@@ -113,7 +147,7 @@ onBeforeUnmount(() => {
           :hands-played="game.handsPlayed"
         />
 
-        <section class="card-row" aria-label="Current hand">
+        <section class="card-row" :aria-label="messages.currentHandLabel">
           <PlayingCard
             v-for="card in game.hand"
             :key="card.id"
@@ -137,7 +171,7 @@ onBeforeUnmount(() => {
         <div
           v-if="isStrategyOpen"
           class="strategy-overlay"
-          aria-label="Strategy help overlay"
+          :aria-label="messages.strategyOverlayLabel"
           @click.self="closeStrategy"
         >
           <StrategyPanel @close="closeStrategy" />

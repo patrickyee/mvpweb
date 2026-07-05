@@ -1,11 +1,16 @@
 import { mount } from '@vue/test-utils';
 import { nextTick } from 'vue';
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import App from '../src/App.vue';
 import GameControls from '../src/components/GameControls.vue';
 import StrategyPanel from '../src/components/StrategyPanel.vue';
+import { useI18n } from '../src/i18n/useI18n';
 
 describe('App playable UI', () => {
+  beforeEach(() => {
+    useI18n().setLocale('en');
+  });
+
   it('renders an initial dealt hand and post-deal credits', () => {
     const wrapper = mount(App);
     const cards = wrapper.findAll('.playing-card');
@@ -85,6 +90,29 @@ describe('App playable UI', () => {
     expect(wrapper.find('.help-toggle').attributes('aria-expanded')).toBe('false');
   });
 
+  it('switches to Traditional Chinese without resetting the current game', async () => {
+    const wrapper = mount(App);
+    const initialCredits = wrapper.findAll('.stats-grid dd')[0].text();
+    const initialCardCount = wrapper.findAll('.playing-card').length;
+
+    const languageButtons = wrapper.findAll('.language-toggle__button');
+
+    expect(languageButtons).toHaveLength(2);
+    expect(languageButtons[0].attributes('aria-pressed')).toBe('true');
+    expect(languageButtons[1].attributes('aria-pressed')).toBe('false');
+
+    await languageButtons[1].trigger('click');
+
+    expect(wrapper.text()).toContain('點數');
+    expect(wrapper.text()).toContain('換牌');
+    expect(wrapper.find('.help-toggle').attributes('aria-label')).toBe('顯示策略說明');
+    expect(wrapper.findAll('.stats-grid dd')[0].text()).toBe(initialCredits);
+    expect(wrapper.findAll('.playing-card')).toHaveLength(initialCardCount);
+    expect(wrapper.findAll('.language-toggle__button')[0].attributes('aria-pressed')).toBe('false');
+    expect(wrapper.findAll('.language-toggle__button')[1].attributes('aria-pressed')).toBe('true');
+    expect(document.documentElement.lang).toBe('zh-Hant');
+  });
+
   it('closes the strategy overlay from backdrop, close button, and Escape', async () => {
     const wrapper = mount(App);
 
@@ -128,6 +156,10 @@ describe('App playable UI', () => {
 });
 
 describe('GameControls', () => {
+  beforeEach(() => {
+    useI18n().setLocale('en');
+  });
+
   it('displays a winning state', () => {
     const wrapper = mount(GameControls, {
       props: {
@@ -187,6 +219,10 @@ describe('GameControls', () => {
 });
 
 describe('StrategyPanel', () => {
+  beforeEach(() => {
+    useI18n().setLocale('en');
+  });
+
   it('renders all strategy items in a table', () => {
     const wrapper = mount(StrategyPanel);
 
@@ -206,5 +242,15 @@ describe('StrategyPanel', () => {
     await wrapper.find('.strategy-close').trigger('click');
 
     expect(wrapper.emitted('close')).toHaveLength(1);
+  });
+
+  it('renders Traditional Chinese table labels and rows', () => {
+    useI18n().setLocale('zh-Hant');
+
+    const wrapper = mount(StrategyPanel);
+
+    expect(wrapper.findAll('thead th').map((cell) => cell.text())).toEqual(['#', '打法']);
+    expect(wrapper.text()).toContain('四條、同花順、皇家同花順');
+    expect(wrapper.text()).toContain('全部棄牌');
   });
 });

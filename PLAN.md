@@ -106,17 +106,38 @@ Acceptance:
 
 Status: implemented. Final automated verification passes with `npm run type-check`, `npm run test`, and `npm run build`. Browser MCP verification covered Help/Hide, hold, draw, next-hand, strategy panel accessibility state, and console logs.
 
+## Phase 7: Internationalization
+
+Goal: support English and Traditional Chinese without changing game logic.
+
+- Add a lightweight local i18n layer.
+- Support `en` and `zh-Hant`.
+- Default to the browser language when Chinese is detected, otherwise English.
+- Persist the selected locale in local storage.
+- Localize visible UI text, result messages, card accessibility labels, hand-rank labels, and strategy table rows.
+- Add a compact language selector to the game header.
+
+Acceptance:
+
+- English remains available and functional.
+- Traditional Chinese can be selected without resetting the current hand or stats.
+- The document language updates when the locale changes.
+- Tests cover dictionary parity, interpolation, locale switching, and localized UI rendering.
+
+Status: implemented in the current Vue UI.
+
 ## Hand-Off For Next Coding Agent Session
 
 Current status:
 
-- Phase 1, Phase 2, Phase 3, Phase 4, Phase 5, and Phase 6 are implemented.
+- Phase 1, Phase 2, Phase 3, Phase 4, Phase 5, Phase 6, and Phase 7 are implemented.
 - The app is a Vue 3 + TypeScript + Vite SPA using npm and Vitest.
 - Core Jacks-or-Better game logic is implemented and covered by unit tests.
 - The playable game UI is wired to the game-state functions.
 - The strategy panel, responsive layout refinements, and accessibility polish are implemented.
 - A follow-up UI refinement changed Help to a circular `?` control, moved strategy help into a dismissible overlay, removed the visible `Video Poker` title, locked cards to a `5:7` aspect ratio, and stabilized card keys to prevent hold-toggle reflow.
 - A compact UI refinement balanced card typography with rank-only corners, rendered strategy guidance as a table, and tightened spacing for mobile landscape browsers.
+- English and Traditional Chinese localization are implemented with a local i18n layer and segmented header language control.
 - Final automated release-readiness checks pass.
 - Cards are rendered from data and should remain CSS/HTML-based unless instructed otherwise.
 

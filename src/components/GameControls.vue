@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useI18n } from '../i18n/useI18n';
+
 defineProps<{
   phase: 'holding' | 'evaluating';
   canContinue: boolean;
@@ -10,16 +12,18 @@ const emit = defineEmits<{
   draw: [];
   nextHand: [];
 }>();
+
+const { messages } = useI18n();
 </script>
 
 <template>
-  <section class="control-panel" aria-label="Game controls">
+  <section class="control-panel" :aria-label="messages.gameControlsLabel">
     <p class="result-message" :class="`result-message--${resultTone}`" aria-live="polite" aria-atomic="true">
       {{ resultMessage }}
     </p>
 
     <button v-if="phase === 'holding'" class="primary-action" type="button" @click="emit('draw')">
-      Draw
+      {{ messages.draw }}
     </button>
 
     <button
@@ -29,7 +33,7 @@ const emit = defineEmits<{
       :disabled="!canContinue"
       @click="emit('nextHand')"
     >
-      Next Hand
+      {{ messages.nextHand }}
     </button>
   </section>
 </template>
