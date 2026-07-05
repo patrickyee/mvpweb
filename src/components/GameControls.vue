@@ -14,7 +14,7 @@ const emit = defineEmits<{
 
 <template>
   <section class="control-panel" aria-label="Game controls">
-    <p class="result-message" :class="`result-message--${resultTone}`" aria-live="polite">
+    <p class="result-message" :class="`result-message--${resultTone}`" aria-live="polite" aria-atomic="true">
       {{ resultMessage }}
     </p>
 

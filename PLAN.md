@@ -70,6 +70,8 @@ Acceptance:
 - The game is usable on desktop and mobile widths.
 - Text and controls do not overlap or overflow.
 
+Status: implemented in the current Vue UI.
+
 ## Phase 5: Polish Interaction And Accessibility
 
 Goal: make the game feel complete without expanding scope.
@@ -86,6 +88,8 @@ Acceptance:
 - Held state is clear without relying only on color.
 - Result changes are accessible to assistive technology.
 
+Status: implemented in the current Vue UI.
+
 ## Phase 6: Verification And Release Readiness
 
 Goal: stabilize the SPA for handoff.
@@ -100,14 +104,18 @@ Acceptance:
 - Tests pass.
 - Manual verification notes are reflected in these three docs only when they affect future work.
 
+Status: implemented. Final automated verification passes with `npm run type-check`, `npm run test`, and `npm run build`. Browser MCP verification covered Help/Hide, hold, draw, next-hand, strategy panel accessibility state, and console logs.
+
 ## Hand-Off For Next Coding Agent Session
 
 Current status:
 
-- Phase 1, Phase 2, and Phase 3 are implemented.
+- Phase 1, Phase 2, Phase 3, Phase 4, Phase 5, and Phase 6 are implemented.
 - The app is a Vue 3 + TypeScript + Vite SPA using npm and Vitest.
 - Core Jacks-or-Better game logic is implemented and covered by unit tests.
 - The playable game UI is wired to the game-state functions.
+- The strategy panel, responsive layout refinements, and accessibility polish are implemented.
+- Final automated release-readiness checks pass.
 - Cards are rendered from data and should remain CSS/HTML-based unless instructed otherwise.
 
 Before starting new work, run:
@@ -127,4 +135,4 @@ Do not create additional documentation files unless explicitly instructed.
 
 Next target:
 
-- Start Phase 4 by adding the collapsible strategy cheat sheet and responsive layout refinements.
+- No planned phases remain. Future work should start from a new explicit request and update only these maintained docs when project direction changes.
