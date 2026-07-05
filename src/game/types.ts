@@ -78,19 +78,6 @@ export const HAND_RANKS = [
 ] as const;
 export type HandRank = (typeof HAND_RANKS)[number];
 
-export const HAND_RANK_LABELS: Record<HandRank, string> = {
-  highCard: 'High Card',
-  jacksOrBetter: 'Jacks or Better',
-  twoPair: 'Two Pair',
-  threeOfAKind: 'Three of a Kind',
-  straight: 'Straight',
-  flush: 'Flush',
-  fullHouse: 'Full House',
-  fourOfAKind: 'Four of a Kind',
-  straightFlush: 'Straight Flush',
-  royalFlush: 'Royal Flush',
-};
-
 export type GamePhase = 'holding' | 'evaluating';
 
 export interface GameState {

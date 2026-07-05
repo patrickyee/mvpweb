@@ -1,4 +1,4 @@
-import { RANK_LABELS, RANKS, SUIT_SYMBOLS, SUITS, type Card } from './types';
+import { RANKS, SUITS, type Card } from './types';
 
 export function createCard(rank: Card['rank'], suit: Card['suit'], held = false): Card {
   return {
@@ -7,10 +7,6 @@ export function createCard(rank: Card['rank'], suit: Card['suit'], held = false)
     suit,
     held,
   };
-}
-
-export function cardDisplay(card: Card): string {
-  return `${RANK_LABELS[card.rank]}${SUIT_SYMBOLS[card.suit]}`;
 }
 
 export function createDeck(): Card[] {
