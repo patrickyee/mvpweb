@@ -41,15 +41,6 @@ const winningIds = computed(
     ),
 );
 const canContinue = computed(() => game.value.credits >= 1);
-const lastResult = computed(() => {
-  if (game.value.phase === 'holding') {
-    return messages.value.playing;
-  }
-
-  return game.value.lastWin > 0
-    ? t(messages.value.winResult, { amount: game.value.lastWin })
-    : messages.value.lose;
-});
 
 const resultMessage = computed(() => {
   if (game.value.phase === 'holding') {
@@ -210,7 +201,6 @@ watchEffect(() => {
         <GameStats
           :credits="game.credits"
           :rtp="rtpLabel"
-          :last-result="lastResult"
           :hands-played="game.handsPlayed"
         />
 

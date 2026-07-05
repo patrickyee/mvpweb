@@ -25,11 +25,7 @@ export interface LocaleMessages {
   winningCard: string;
   credits: string;
   rtp: string;
-  result: string;
   hands: string;
-  playing: string;
-  winResult: string;
-  lose: string;
   draw: string;
   nextHand: string;
   chooseCards: string;
@@ -74,11 +70,7 @@ export const messages: Record<Locale, LocaleMessages> = {
     winningCard: 'winning card',
     credits: 'Credits',
     rtp: 'RTP',
-    result: 'Result',
     hands: 'Hands',
-    playing: 'Playing',
-    winResult: 'Win {amount}',
-    lose: 'Lose',
     draw: 'Draw',
     nextHand: 'Next Hand',
     chooseCards: 'Choose cards to hold, then draw.',
@@ -168,11 +160,7 @@ export const messages: Record<Locale, LocaleMessages> = {
     winningCard: '獲勝牌',
     credits: '點數',
     rtp: 'RTP',
-    result: '結果',
     hands: '手數',
-    playing: '進行中',
-    winResult: '贏 {amount}',
-    lose: '輸',
     draw: '換牌',
     nextHand: '下一手',
     chooseCards: '選擇要保留的牌，然後換牌。',

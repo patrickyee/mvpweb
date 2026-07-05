@@ -4,7 +4,6 @@ import { useI18n } from '../i18n/useI18n';
 defineProps<{
   credits: number;
   rtp: string;
-  lastResult: string;
   handsPlayed: number;
 }>();
 
@@ -14,19 +13,24 @@ const { messages } = useI18n();
 <template>
   <dl class="stats-grid" :aria-label="messages.gameStatusLabel">
     <div>
-      <dt>{{ messages.credits }}</dt>
+      <dt>
+        <span aria-hidden="true">💰</span>
+        <span class="visually-hidden">{{ messages.credits }}</span>
+      </dt>
       <dd>{{ credits }}</dd>
     </div>
     <div>
-      <dt>{{ messages.rtp }}</dt>
+      <dt>
+        <span aria-hidden="true">📈</span>
+        <span class="visually-hidden">{{ messages.rtp }}</span>
+      </dt>
       <dd>{{ rtp }}</dd>
     </div>
     <div>
-      <dt>{{ messages.result }}</dt>
-      <dd>{{ lastResult }}</dd>
-    </div>
-    <div>
-      <dt>{{ messages.hands }}</dt>
+      <dt>
+        <span aria-hidden="true">🃏</span>
+        <span class="visually-hidden">{{ messages.hands }}</span>
+      </dt>
       <dd>{{ handsPlayed }}</dd>
     </div>
   </dl>
