@@ -115,6 +115,8 @@ Current status:
 - Core Jacks-or-Better game logic is implemented and covered by unit tests.
 - The playable game UI is wired to the game-state functions.
 - The strategy panel, responsive layout refinements, and accessibility polish are implemented.
+- A follow-up UI refinement changed Help to a circular `?` control, moved strategy help into a dismissible overlay, removed the visible `Video Poker` title, locked cards to a `5:7` aspect ratio, and stabilized card keys to prevent hold-toggle reflow.
+- A compact UI refinement balanced card typography with rank-only corners, rendered strategy guidance as a table, and tightened spacing for mobile landscape browsers.
 - Final automated release-readiness checks pass.
 - Cards are rendered from data and should remain CSS/HTML-based unless instructed otherwise.
 

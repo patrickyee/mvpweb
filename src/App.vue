@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import GameControls from './components/GameControls.vue';
 import GameStats from './components/GameStats.vue';
 import PlayingCard from './components/PlayingCard.vue';
@@ -64,16 +64,34 @@ function handleNextHand(): void {
 function toggleStrategy(): void {
   isStrategyOpen.value = !isStrategyOpen.value;
 }
+
+function closeStrategy(): void {
+  isStrategyOpen.value = false;
+}
+
+function handleEscape(event: KeyboardEvent): void {
+  if (event.key === 'Escape') {
+    closeStrategy();
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('keydown', handleEscape);
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', handleEscape);
+});
 </script>
 
 <template>
   <main class="game-shell" aria-labelledby="game-title">
-    <div class="game-layout" :class="{ 'game-layout--with-strategy': isStrategyOpen }">
+    <div class="game-layout">
       <section class="game-surface">
         <header class="game-header">
           <div>
+            <h1 id="game-title" class="visually-hidden">Jacks or Better</h1>
             <p class="eyebrow">Jacks or Better</p>
-            <h1 id="game-title">Video Poker</h1>
           </div>
 
           <button
@@ -84,7 +102,7 @@ function toggleStrategy(): void {
             :aria-label="isStrategyOpen ? 'Hide strategy help' : 'Show strategy help'"
             @click="toggleStrategy"
           >
-            {{ isStrategyOpen ? 'Hide' : 'Help' }}
+            <span aria-hidden="true">?</span>
           </button>
         </header>
 
@@ -95,15 +113,15 @@ function toggleStrategy(): void {
           :hands-played="game.handsPlayed"
         />
 
-        <TransitionGroup name="card-refresh" tag="section" class="card-row" aria-label="Current hand">
+        <section class="card-row" aria-label="Current hand">
           <PlayingCard
             v-for="card in game.hand"
-            :key="`${card.id}-${game.phase}-${card.held}`"
+            :key="card.id"
             :card="card"
             :disabled="!isHolding"
             @toggle="handleToggle"
           />
-        </TransitionGroup>
+        </section>
 
         <GameControls
           :phase="game.phase"
@@ -115,8 +133,15 @@ function toggleStrategy(): void {
         />
       </section>
 
-      <Transition name="strategy-slide">
-        <StrategyPanel v-if="isStrategyOpen" />
+      <Transition name="overlay-fade">
+        <div
+          v-if="isStrategyOpen"
+          class="strategy-overlay"
+          aria-label="Strategy help overlay"
+          @click.self="closeStrategy"
+        >
+          <StrategyPanel @close="closeStrategy" />
+        </div>
       </Transition>
     </div>
   </main>

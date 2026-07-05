@@ -14,7 +14,6 @@ const emit = defineEmits<{
 const isRedSuit = computed(() => props.card.suit === 'hearts' || props.card.suit === 'diamonds');
 const rankLabel = computed(() => RANK_LABELS[props.card.rank]);
 const suitSymbol = computed(() => SUIT_SYMBOLS[props.card.suit]);
-const cardText = computed(() => `${rankLabel.value}${suitSymbol.value}`);
 const cardName = computed(() => `${props.card.rank} of ${props.card.suit}`);
 const actionLabel = computed(() =>
   props.card.held ? `Release ${cardName.value}` : `Hold ${cardName.value}`,
@@ -31,9 +30,9 @@ const actionLabel = computed(() =>
     :disabled="disabled"
     @click="emit('toggle', card.id)"
   >
-    <span class="card-corner card-corner--top">{{ cardText }}</span>
+    <span class="card-corner card-corner--top">{{ rankLabel }}</span>
     <span class="card-center" aria-hidden="true">{{ suitSymbol }}</span>
     <span v-if="card.held" class="held-label">Held</span>
-    <span class="card-corner card-corner--bottom">{{ cardText }}</span>
+    <span class="card-corner card-corner--bottom">{{ rankLabel }}</span>
   </button>
 </template>

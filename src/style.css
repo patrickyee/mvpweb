@@ -29,29 +29,24 @@ select {
 
 .game-shell {
   min-height: 100vh;
-  padding: 24px;
+  padding: 16px;
   background:
     radial-gradient(circle at top left, rgb(255 255 255 / 0.72), transparent 28rem),
     linear-gradient(135deg, #eef3ef, #d7e2da);
 }
 
 .game-layout {
-  width: min(1200px, 100%);
-  min-height: calc(100vh - 48px);
+  width: min(960px, 100%);
+  min-height: calc(100vh - 32px);
   margin: 0 auto;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   align-items: center;
-  gap: 16px;
-}
-
-.game-layout--with-strategy {
-  grid-template-columns: minmax(0, 1fr) minmax(260px, 320px);
 }
 
 .game-surface {
   width: 100%;
-  padding: 24px;
+  padding: 18px;
   border: 1px solid rgb(23 32 24 / 0.12);
   border-radius: 8px;
   background: rgb(255 255 255 / 0.76);
@@ -60,34 +55,44 @@ select {
 
 .game-header {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 16px;
-  margin-bottom: 24px;
+  margin-bottom: 14px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .eyebrow {
-  margin: 0 0 4px;
+  margin: 0;
   color: #2d6f4b;
   font-size: 0.78rem;
   font-weight: 700;
   text-transform: uppercase;
 }
 
-h1 {
-  margin: 0;
-  font-size: clamp(2rem, 8vw, 3rem);
-  line-height: 1;
-}
-
 .help-toggle {
-  min-width: 76px;
-  min-height: 38px;
+  width: 34px;
+  height: 34px;
+  display: inline-grid;
+  place-items: center;
   border: 1px solid rgb(23 32 24 / 0.18);
-  border-radius: 8px;
+  border-radius: 50%;
   color: #17351f;
   background: #ffffff;
+  font-size: 1.05rem;
   font-weight: 900;
+  line-height: 1;
   cursor: pointer;
 }
 
@@ -103,13 +108,13 @@ h1 {
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 12px;
+  gap: 8px;
   margin: 0;
 }
 
 .stats-grid div {
   min-width: 0;
-  padding: 14px;
+  padding: 10px 12px;
   border: 1px solid rgb(23 32 24 / 0.12);
   border-radius: 8px;
   background: #ffffff;
@@ -117,31 +122,30 @@ h1 {
 
 .stats-grid dt {
   color: #5f6c62;
-  font-size: 0.8rem;
+  font-size: 0.74rem;
   font-weight: 700;
 }
 
 .stats-grid dd {
-  margin: 6px 0 0;
-  font-size: 1.45rem;
+  margin: 4px 0 0;
+  font-size: 1.25rem;
   font-weight: 800;
 }
 
 .card-row {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: clamp(8px, 2vw, 16px);
+  gap: clamp(6px, 1.4vw, 12px);
   align-items: center;
-  margin: clamp(24px, 5vw, 42px) 0;
+  min-width: 0;
+  margin: clamp(16px, 3vw, 28px) 0;
 }
 
 .playing-card {
   position: relative;
   width: 100%;
-  aspect-ratio: 2 / 3;
-  min-height: 118px;
-  max-height: 220px;
-  padding: 10px;
+  aspect-ratio: 5 / 7;
+  padding: 8px;
   border: 2px solid rgb(23 32 24 / 0.24);
   border-radius: 8px;
   color: #151815;
@@ -181,19 +185,20 @@ h1 {
 .card-corner {
   position: absolute;
   display: inline-flex;
-  min-width: 2ch;
+  min-width: 1.5ch;
+  font-size: clamp(1rem, 2.2vw, 1.4rem);
   font-weight: 900;
   line-height: 1;
 }
 
 .card-corner--top {
-  top: 10px;
-  left: 10px;
+  top: 8px;
+  left: 8px;
 }
 
 .card-corner--bottom {
-  right: 10px;
-  bottom: 10px;
+  right: 8px;
+  bottom: 8px;
   rotate: 180deg;
 }
 
@@ -202,7 +207,7 @@ h1 {
   inset: 0;
   display: grid;
   place-items: center;
-  font-size: clamp(2rem, 6vw, 4.25rem);
+  font-size: clamp(1.75rem, 4vw, 3rem);
   line-height: 1;
   opacity: 0.95;
 }
@@ -210,14 +215,14 @@ h1 {
 .held-label {
   position: absolute;
   left: 50%;
-  bottom: 24%;
+  bottom: 22%;
   translate: -50% 0;
-  padding: 3px 8px;
+  padding: 2px 7px;
   border: 1px solid rgb(128 92 0 / 0.36);
   border-radius: 999px;
   color: #2e2a18;
   background: #ffe28a;
-  font-size: clamp(0.68rem, 1.6vw, 0.8rem);
+  font-size: clamp(0.62rem, 1.3vw, 0.74rem);
   font-weight: 900;
   text-transform: uppercase;
 }
@@ -226,7 +231,7 @@ h1 {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: 12px;
 }
 
 .result-message {
@@ -245,7 +250,7 @@ h1 {
 
 .primary-action {
   min-width: 136px;
-  min-height: 46px;
+  min-height: 40px;
   border: 0;
   border-radius: 8px;
   color: #ffffff;
@@ -268,76 +273,124 @@ h1 {
   opacity: 0.48;
 }
 
-.strategy-panel {
-  align-self: stretch;
-  padding: 18px;
-  border: 1px solid rgb(23 32 24 / 0.12);
-  border-radius: 8px;
-  background: rgb(255 255 255 / 0.82);
-  box-shadow: 0 18px 50px rgb(23 32 24 / 0.1);
+.strategy-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgb(18 24 20 / 0.42);
 }
 
-.strategy-panel h2 {
-  margin: 0 0 12px;
+.strategy-panel {
+  width: min(620px, 100%);
+  max-height: min(720px, calc(100vh - 48px));
+  overflow: auto;
+  padding: 16px;
+  border: 1px solid rgb(23 32 24 / 0.12);
+  border-radius: 8px;
+  background: rgb(255 255 255 / 0.9);
+  box-shadow: 0 22px 70px rgb(23 32 24 / 0.22);
+}
+
+.strategy-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.strategy-header h2 {
+  margin: 0;
   font-size: 1rem;
   line-height: 1.2;
 }
 
-.strategy-list {
-  margin: 0;
-  padding-left: 1.25rem;
+.strategy-close {
+  width: 32px;
+  height: 32px;
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid rgb(23 32 24 / 0.16);
+  border-radius: 50%;
+  color: #17351f;
+  background: #ffffff;
+  font-size: 1.25rem;
+  font-weight: 800;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.strategy-close:hover {
+  background: #eef7ef;
+}
+
+.strategy-close:focus-visible {
+  outline: 3px solid #2f7bff;
+  outline-offset: 3px;
+}
+
+.strategy-table {
+  width: 100%;
+  border-collapse: collapse;
   color: #435047;
-  font-size: 0.9rem;
-  line-height: 1.45;
+  font-size: 0.86rem;
+  line-height: 1.35;
 }
 
-.strategy-list li + li {
-  margin-top: 8px;
+.strategy-table th,
+.strategy-table td {
+  padding: 6px 8px;
+  border-top: 1px solid rgb(23 32 24 / 0.1);
+  text-align: left;
+  vertical-align: top;
 }
 
-.strategy-slide-enter-active,
-.strategy-slide-leave-active,
-.card-refresh-enter-active,
-.card-refresh-leave-active {
+.strategy-table thead th {
+  border-top: 0;
+  color: #172018;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+}
+
+.strategy-table tbody th {
+  width: 2.25rem;
+  color: #2d6f4b;
+  font-weight: 900;
+}
+
+.overlay-fade-enter-active,
+.overlay-fade-leave-active {
   transition:
     opacity 160ms ease,
     transform 160ms ease;
 }
 
-.strategy-slide-enter-from,
-.strategy-slide-leave-to {
+.overlay-fade-enter-from,
+.overlay-fade-leave-to {
   opacity: 0;
-  transform: translateX(12px);
-}
-
-.card-refresh-enter-from,
-.card-refresh-leave-to {
-  opacity: 0;
-  transform: translateY(8px);
+  transform: scale(0.99);
 }
 
 @media (max-width: 560px) {
   .game-shell {
-    padding: 16px;
+    padding: 10px;
   }
 
-  .game-layout,
-  .game-layout--with-strategy {
-    min-height: calc(100vh - 32px);
+  .game-layout {
+    min-height: calc(100vh - 20px);
     grid-template-columns: 1fr;
     align-items: start;
   }
 
   .game-surface {
-    padding: 18px;
+    padding: 12px;
   }
 
   .game-header {
     align-items: center;
-  }
-
-  .help-toggle {
-    min-width: 68px;
   }
 
   .stats-grid {
@@ -345,26 +398,34 @@ h1 {
   }
 
   .stats-grid dd {
-    font-size: 1.15rem;
+    font-size: 1.05rem;
   }
 
   .card-row {
-    gap: 6px;
+    gap: 5px;
   }
 
   .playing-card {
-    min-height: 92px;
-    padding: 7px;
+    padding: 5px;
+  }
+
+  .card-center {
+    font-size: clamp(1.3rem, 7vw, 2rem);
+  }
+
+  .held-label {
+    padding: 2px 5px;
+    font-size: 0.58rem;
   }
 
   .card-corner--top {
-    top: 7px;
-    left: 7px;
+    top: 5px;
+    left: 5px;
   }
 
   .card-corner--bottom {
-    right: 7px;
-    bottom: 7px;
+    right: 5px;
+    bottom: 5px;
   }
 
   .control-panel {
@@ -376,25 +437,137 @@ h1 {
     width: 100%;
   }
 
-  .strategy-panel {
-    align-self: auto;
+  .strategy-overlay {
+    align-items: start;
     padding: 16px;
   }
 
-  .strategy-list {
+  .strategy-panel {
+    max-height: calc(100vh - 32px);
+    padding: 16px;
+  }
+
+  .strategy-table {
     font-size: 0.86rem;
   }
 }
 
-@media (min-width: 561px) and (max-width: 920px) {
-  .game-layout,
-  .game-layout--with-strategy {
-    grid-template-columns: 1fr;
-    align-items: start;
+@media (orientation: landscape) and (max-height: 520px) {
+  .game-shell {
+    padding: 8px;
+  }
+
+  .game-layout {
+    min-height: calc(100vh - 16px);
+    align-items: center;
+  }
+
+  .game-surface {
+    padding: 10px;
+  }
+
+  .game-header {
+    margin-bottom: 8px;
+  }
+
+  .eyebrow {
+    font-size: 0.68rem;
+  }
+
+  .help-toggle {
+    width: 30px;
+    height: 30px;
+    font-size: 0.95rem;
+  }
+
+  .stats-grid {
+    gap: 6px;
+  }
+
+  .stats-grid div {
+    padding: 6px 8px;
+  }
+
+  .stats-grid dt {
+    font-size: 0.66rem;
+  }
+
+  .stats-grid dd {
+    margin-top: 2px;
+    font-size: 0.95rem;
+  }
+
+  .card-row {
+    gap: 6px;
+    margin: 10px 0;
+  }
+
+  .playing-card {
+    padding: 5px;
+    border-width: 1px;
+    box-shadow: 0 4px 12px rgb(23 32 24 / 0.12);
+  }
+
+  .playing-card:hover:not(:disabled) {
+    transform: none;
+  }
+
+  .card-corner {
+    font-size: clamp(0.82rem, 2.3vw, 1rem);
+  }
+
+  .card-center {
+    font-size: clamp(1.15rem, 5vw, 1.85rem);
+  }
+
+  .held-label {
+    bottom: 19%;
+    padding: 1px 5px;
+    font-size: 0.52rem;
+  }
+
+  .control-panel {
+    gap: 8px;
+  }
+
+  .result-message {
+    font-size: 0.86rem;
+  }
+
+  .primary-action {
+    min-width: 108px;
+    min-height: 34px;
+  }
+
+  .strategy-overlay {
+    padding: 8px;
   }
 
   .strategy-panel {
-    align-self: auto;
+    width: min(680px, 100%);
+    max-height: calc(100vh - 16px);
+    padding: 10px;
+  }
+
+  .strategy-header {
+    margin-bottom: 6px;
+  }
+
+  .strategy-table {
+    font-size: 0.72rem;
+    line-height: 1.2;
+  }
+
+  .strategy-table th,
+  .strategy-table td {
+    padding: 3px 6px;
+  }
+}
+
+@media (min-width: 561px) and (max-width: 920px) {
+  .game-layout {
+    grid-template-columns: 1fr;
+    align-items: start;
   }
 }
 
@@ -428,6 +601,10 @@ h1 {
 
   .help-toggle:hover {
     background: #233328;
+  }
+
+  .strategy-overlay {
+    background: rgb(4 8 6 / 0.58);
   }
 
   .stats-grid div {
@@ -465,12 +642,35 @@ h1 {
 
   .strategy-panel {
     border-color: rgb(237 244 239 / 0.16);
-    background: rgb(26 37 29 / 0.9);
+    background: rgb(26 37 29 / 0.94);
     box-shadow: 0 18px 50px rgb(0 0 0 / 0.28);
   }
 
-  .strategy-list {
+  .strategy-close {
+    border-color: rgb(237 244 239 / 0.16);
+    color: #edf4ef;
+    background: #223128;
+  }
+
+  .strategy-close:hover {
+    background: #2b3c31;
+  }
+
+  .strategy-table {
     color: #c8d4cb;
+  }
+
+  .strategy-table th,
+  .strategy-table td {
+    border-top-color: rgb(237 244 239 / 0.12);
+  }
+
+  .strategy-table thead th {
+    color: #edf4ef;
+  }
+
+  .strategy-table tbody th {
+    color: #8cd4a6;
   }
 }
 

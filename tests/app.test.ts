@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils';
+import { nextTick } from 'vue';
 import { describe, expect, it } from 'vitest';
 import App from '../src/App.vue';
 import GameControls from '../src/components/GameControls.vue';
@@ -25,6 +26,20 @@ describe('App playable UI', () => {
     expect(wrapper.find('.playing-card').text()).toContain('Held');
   });
 
+  it('renders rank-only corners while preserving center suit and accessible card name', () => {
+    const wrapper = mount(App);
+    const firstCard = wrapper.find('.playing-card');
+    const cornerTexts = firstCard.findAll('.card-corner').map((corner) => corner.text());
+    const centerSuit = firstCard.find('.card-center').text();
+
+    expect(cornerTexts).toHaveLength(2);
+    expect(cornerTexts[0]).toBe(cornerTexts[1]);
+    expect(cornerTexts[0]).not.toMatch(/[♥♦♣♠]/);
+    expect(centerSuit).toMatch(/[♥♦♣♠]/);
+    expect(firstCard.attributes('aria-label')).toMatch(/Hold .+ of .+/);
+  });
+
+
   it('draws into result state and disables card toggling', async () => {
     const wrapper = mount(App);
 
@@ -47,16 +62,20 @@ describe('App playable UI', () => {
     expect(wrapper.find('.playing-card').attributes('disabled')).toBeUndefined();
   });
 
-  it('opens and closes the strategy panel with accessible toggle state', async () => {
+  it('opens and closes the strategy overlay with accessible toggle state', async () => {
     const wrapper = mount(App);
     const helpButton = wrapper.find('.help-toggle');
 
     expect(wrapper.find('#strategy-panel').exists()).toBe(false);
     expect(helpButton.attributes('aria-expanded')).toBe('false');
+    expect(helpButton.classes()).toContain('help-toggle');
+    expect(helpButton.text()).toBe('?');
 
     await helpButton.trigger('click');
 
     expect(wrapper.find('#strategy-panel').exists()).toBe(true);
+    expect(wrapper.find('.strategy-overlay').exists()).toBe(true);
+    expect(wrapper.find('.game-layout--with-strategy').exists()).toBe(false);
     expect(wrapper.find('.help-toggle').attributes('aria-expanded')).toBe('true');
     expect(wrapper.find('.help-toggle').attributes('aria-controls')).toBe('strategy-panel');
 
@@ -64,6 +83,23 @@ describe('App playable UI', () => {
 
     expect(wrapper.find('#strategy-panel').exists()).toBe(false);
     expect(wrapper.find('.help-toggle').attributes('aria-expanded')).toBe('false');
+  });
+
+  it('closes the strategy overlay from backdrop, close button, and Escape', async () => {
+    const wrapper = mount(App);
+
+    await wrapper.find('.help-toggle').trigger('click');
+    await wrapper.find('.strategy-overlay').trigger('click');
+    expect(wrapper.find('#strategy-panel').exists()).toBe(false);
+
+    await wrapper.find('.help-toggle').trigger('click');
+    await wrapper.find('.strategy-close').trigger('click');
+    expect(wrapper.find('#strategy-panel').exists()).toBe(false);
+
+    await wrapper.find('.help-toggle').trigger('click');
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    await nextTick();
+    expect(wrapper.find('#strategy-panel').exists()).toBe(false);
   });
 
   it('keeps card hold and draw flow working when strategy is open', async () => {
@@ -76,6 +112,18 @@ describe('App playable UI', () => {
     expect(wrapper.find('#strategy-panel').exists()).toBe(true);
     expect(wrapper.find('button.primary-action').text()).toBe('Next Hand');
     expect(wrapper.text()).toMatch(/Lose|pays/);
+  });
+
+  it('keeps the five card buttons stable when holding a card', async () => {
+    const wrapper = mount(App);
+    const beforeLabels = wrapper.findAll('.playing-card').map((card) => card.attributes('aria-label'));
+
+    await wrapper.find('.playing-card').trigger('click');
+
+    const afterCards = wrapper.findAll('.playing-card');
+    expect(afterCards).toHaveLength(5);
+    expect(afterCards[0].attributes('aria-label')).toContain('Release');
+    expect(afterCards.slice(1).map((card) => card.attributes('aria-label'))).toEqual(beforeLabels.slice(1));
   });
 });
 
@@ -139,11 +187,24 @@ describe('GameControls', () => {
 });
 
 describe('StrategyPanel', () => {
-  it('renders all strategy items', () => {
+  it('renders all strategy items in a table', () => {
     const wrapper = mount(StrategyPanel);
 
-    expect(wrapper.findAll('li')).toHaveLength(16);
+    expect(wrapper.find('table.strategy-table').exists()).toBe(true);
+    expect(wrapper.findAll('tbody tr')).toHaveLength(16);
+    expect(wrapper.findAll('thead th').map((cell) => cell.text())).toEqual(['#', 'Play']);
     expect(wrapper.text()).toContain('Four of a kind, straight flush, royal flush');
     expect(wrapper.text()).toContain('Discard everything');
+  });
+
+  it('is an accessible dialog and emits close', async () => {
+    const wrapper = mount(StrategyPanel);
+
+    expect(wrapper.attributes('role')).toBe('dialog');
+    expect(wrapper.attributes('aria-modal')).toBe('true');
+
+    await wrapper.find('.strategy-close').trigger('click');
+
+    expect(wrapper.emitted('close')).toHaveLength(1);
   });
 });
