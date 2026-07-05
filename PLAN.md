@@ -52,6 +52,8 @@ Acceptance:
 - Credits, winnings, hands, and RTP update correctly.
 - Controls are only active in the correct phases.
 
+Status: implemented in the current Vue UI.
+
 ## Phase 4: Add Strategy Panel And Responsive Layout
 
 Goal: recreate the MVP help panel while making the SPA usable on common screen sizes.
@@ -102,9 +104,10 @@ Acceptance:
 
 Current status:
 
-- Phase 1 and Phase 2 are implemented.
+- Phase 1, Phase 2, and Phase 3 are implemented.
 - The app is a Vue 3 + TypeScript + Vite SPA using npm and Vitest.
 - Core Jacks-or-Better game logic is implemented and covered by unit tests.
+- The playable game UI is wired to the game-state functions.
 - Cards are rendered from data and should remain CSS/HTML-based unless instructed otherwise.
 
 Before starting new work, run:
@@ -124,4 +127,4 @@ Do not create additional documentation files unless explicitly instructed.
 
 Next target:
 
-- Start Phase 3 by replacing the minimal placeholder app shell with the playable game UI wired to the existing game-state functions.
+- Start Phase 4 by adding the collapsible strategy cheat sheet and responsive layout refinements.
