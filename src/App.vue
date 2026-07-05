@@ -7,18 +7,30 @@ import StrategyPanel from './components/StrategyPanel.vue';
 import { createInitialGameState, dealNewHand, draw, nextHand, toggleHold } from './game/gameState';
 import { winningCardIds } from './game/handEvaluator';
 import { recommendHolds } from './game/strategy';
+import { useAutoPlay, type AutoPlaySpeed } from './composables/useAutoPlay';
 import { type Locale } from './i18n/messages';
 import { useI18n } from './i18n/useI18n';
 
 const game = ref(dealNewHand(createInitialGameState()));
 const isStrategyOpen = ref(false);
 const hintMode = ref(false);
+const autoPlayConfirmOpen = ref(false);
 const { locale, messages, setLocale, t } = useI18n();
+const {
+  autoPlaying,
+  speed: autoPlaySpeed,
+  start: startAutoPlay,
+  toggle: toggleAutoPlay,
+  stop: stopAutoPlay,
+} = useAutoPlay(game);
 
 const rtpLabel = computed(() => `${game.value.rtp.toFixed(2)}%`);
 const isHolding = computed(() => game.value.phase === 'holding');
 const recommendedIds = computed(
-  () => new Set(hintMode.value && isHolding.value ? recommendHolds(game.value.hand) : []),
+  () =>
+    new Set(
+      hintMode.value && isHolding.value && !autoPlaying.value ? recommendHolds(game.value.hand) : [],
+    ),
 );
 const winningIds = computed(
   () =>
@@ -82,6 +94,30 @@ function handleNextHand(): void {
   game.value = nextHand(game.value);
 }
 
+function handleNewGame(): void {
+  stopAutoPlay();
+  game.value = dealNewHand(createInitialGameState());
+}
+
+function requestAutoPlay(): void {
+  if (!autoPlaying.value) {
+    autoPlayConfirmOpen.value = true;
+  }
+}
+
+function confirmAutoPlay(): void {
+  autoPlayConfirmOpen.value = false;
+  startAutoPlay();
+}
+
+function cancelAutoPlay(): void {
+  autoPlayConfirmOpen.value = false;
+}
+
+function handleSetSpeed(speed: number): void {
+  autoPlaySpeed.value = speed as AutoPlaySpeed;
+}
+
 function toggleStrategy(): void {
   isStrategyOpen.value = !isStrategyOpen.value;
 }
@@ -97,6 +133,7 @@ function closeStrategy(): void {
 function handleEscape(event: KeyboardEvent): void {
   if (event.key === 'Escape') {
     closeStrategy();
+    cancelAutoPlay();
   }
 }
 
@@ -106,6 +143,7 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   window.removeEventListener('keydown', handleEscape);
+  stopAutoPlay();
 });
 
 watchEffect(() => {
@@ -181,7 +219,8 @@ watchEffect(() => {
             v-for="card in game.hand"
             :key="card.id"
             :card="card"
-            :disabled="!isHolding"
+            :disabled="!isHolding || autoPlaying"
+            :revealed="!isHolding"
             :recommended="recommendedIds.has(card.id)"
             :winning="winningIds.has(card.id)"
             @toggle="handleToggle"
@@ -193,8 +232,14 @@ watchEffect(() => {
           :can-continue="canContinue"
           :result-message="resultMessage"
           :result-tone="resultTone"
+          :auto-playing="autoPlaying"
+          :auto-play-speed="autoPlaySpeed"
           @draw="handleDraw"
           @next-hand="handleNextHand"
+          @new-game="handleNewGame"
+          @toggle-auto-play="toggleAutoPlay"
+          @request-auto-play="requestAutoPlay"
+          @set-speed="handleSetSpeed"
         />
       </section>
 
@@ -206,6 +251,29 @@ watchEffect(() => {
           @click.self="closeStrategy"
         >
           <StrategyPanel @close="closeStrategy" />
+        </div>
+      </Transition>
+
+      <Transition name="overlay-fade">
+        <div v-if="autoPlayConfirmOpen" class="strategy-overlay">
+          <div
+            class="confirm-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="auto-play-title"
+            aria-describedby="auto-play-desc"
+          >
+            <h2 id="auto-play-title">{{ messages.autoPlay }}</h2>
+            <p id="auto-play-desc">{{ messages.autoPlayPrompt }}</p>
+            <div class="confirm-actions">
+              <button class="secondary-action" type="button" @click="cancelAutoPlay">
+                {{ messages.cancel }}
+              </button>
+              <button class="primary-action" type="button" @click="confirmAutoPlay">
+                {{ messages.autoPlayConfirm }}
+              </button>
+            </div>
+          </div>
         </div>
       </Transition>
     </div>

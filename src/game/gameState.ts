@@ -62,6 +62,19 @@ export function toggleHold(state: GameState, cardId: string): GameStateWithRtp {
   });
 }
 
+export function setHolds(state: GameState, cardIds: readonly string[]): GameStateWithRtp {
+  if (state.phase !== 'holding') {
+    return withRtp(state);
+  }
+
+  const held = new Set(cardIds);
+
+  return withRtp({
+    ...state,
+    hand: state.hand.map((card) => ({ ...card, held: held.has(card.id) })),
+  });
+}
+
 export function draw(state: GameState): GameStateWithRtp {
   if (state.phase !== 'holding') {
     return withRtp(state);

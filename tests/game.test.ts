@@ -7,6 +7,7 @@ import {
   dealNewHand,
   draw,
   nextHand,
+  setHolds,
   toggleHold,
 } from '../src/game/gameState';
 import type { GameStateWithRtp } from '../src/game/gameState';
@@ -174,6 +175,30 @@ describe('winning card ids', () => {
 
     const highCard = [c('2', 'hearts'), c('5', 'diamonds'), c('8', 'clubs'), c('10', 'spades'), c('king', 'hearts')];
     expect(winningCardIds(highCard)).toEqual([]);
+  });
+});
+
+describe('setHolds', () => {
+  const hand = [
+    c('2', 'hearts'),
+    c('5', 'diamonds'),
+    c('8', 'clubs'),
+    c('jack', 'spades'),
+    c('king', 'hearts'),
+  ];
+
+  it('sets exactly the given cards as held during the holding phase', () => {
+    const state: GameStateWithRtp = { ...createInitialGameState(), phase: 'holding', hand };
+    const result = setHolds(state, [hand[0].id, hand[3].id]);
+
+    expect(result.hand.map((card) => card.held)).toEqual([true, false, false, true, false]);
+  });
+
+  it('is a no-op outside the holding phase', () => {
+    const state: GameStateWithRtp = { ...createInitialGameState(), phase: 'evaluating', hand };
+    const result = setHolds(state, [hand[0].id]);
+
+    expect(result.hand.some((card) => card.held)).toBe(false);
   });
 });
 

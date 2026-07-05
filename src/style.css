@@ -337,6 +337,8 @@ select {
   background: #226946;
   font-weight: 900;
   cursor: pointer;
+  user-select: none;
+  touch-action: none;
 }
 
 .primary-action:hover:not(:disabled) {
@@ -351,6 +353,85 @@ select {
 .primary-action:disabled {
   cursor: not-allowed;
   opacity: 0.48;
+}
+
+.primary-action--stop {
+  background: #b5262f;
+}
+
+.primary-action--stop:hover:not(:disabled) {
+  background: #9f2028;
+}
+
+.control-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.auto-speed {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.auto-speed__slider {
+  width: 96px;
+  accent-color: #226946;
+  cursor: pointer;
+}
+
+.auto-speed__value {
+  min-width: 3ch;
+  color: #435047;
+  font-size: 0.8rem;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+
+.confirm-dialog {
+  width: min(360px, 100%);
+  padding: 20px;
+  border: 1px solid rgb(23 32 24 / 0.14);
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 18px 50px rgb(23 32 24 / 0.28);
+}
+
+.confirm-dialog h2 {
+  margin: 0 0 8px;
+  font-size: 1.1rem;
+}
+
+.confirm-dialog p {
+  margin: 0 0 16px;
+  color: #435047;
+}
+
+.confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.secondary-action {
+  min-height: 40px;
+  padding: 0 16px;
+  border: 1px solid rgb(23 32 24 / 0.24);
+  border-radius: 8px;
+  color: #17351f;
+  background: #ffffff;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.secondary-action:hover {
+  background: #eef7ef;
+}
+
+.secondary-action:focus-visible {
+  outline: 3px solid #2f7bff;
+  outline-offset: 3px;
 }
 
 .strategy-overlay {
@@ -513,8 +594,13 @@ select {
     flex-direction: column;
   }
 
-  .primary-action {
+  .control-actions {
     width: 100%;
+  }
+
+  .primary-action {
+    flex: 1;
+    min-width: 0;
   }
 
   .strategy-overlay {
@@ -707,6 +793,42 @@ select {
 
   .hint-dot {
     box-shadow: 0 0 0 2px #25302a;
+  }
+
+  .primary-action--stop {
+    background: #a5303a;
+  }
+
+  .primary-action--stop:hover:not(:disabled) {
+    background: #8f2831;
+  }
+
+  .auto-speed__value {
+    color: #adbaaf;
+  }
+
+  .auto-speed__slider {
+    accent-color: #8cd4a6;
+  }
+
+  .confirm-dialog {
+    border-color: rgb(237 244 239 / 0.16);
+    background: #14201a;
+    box-shadow: 0 18px 50px rgb(0 0 0 / 0.45);
+  }
+
+  .confirm-dialog p {
+    color: #adbaaf;
+  }
+
+  .secondary-action {
+    border-color: rgb(237 244 239 / 0.22);
+    color: #edf4ef;
+    background: #1a251d;
+  }
+
+  .secondary-action:hover {
+    background: #233328;
   }
 
   .language-toggle {

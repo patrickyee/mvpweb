@@ -139,6 +139,13 @@ Goal: compute the best hold choice for the current hand and surface it as option
 - Keep hint styling visually distinct from selected/held styling.
 - Localize hint controls and accessibility labels.
 
+Follow-up additions (built after the original scope above):
+
+- After the draw, highlight the cards that form the winning hand with an annotation
+  distinct from both hint and held styling.
+- Hide the held annotation once the hand is revealed, so the winning highlight is the
+  only signal during the evaluating phase.
+
 Acceptance:
 
 - Unit tests cover representative hands for every strategy priority.
@@ -146,15 +153,29 @@ Acceptance:
 - Manual hold state remains user-controlled.
 - Hint mode can be enabled/disabled without starting a new hand.
 - Existing game logic and payouts are unchanged.
+- The winning-hand cards are highlighted after a winning draw, distinct from hint and
+  held styling.
+- The held annotation is not shown during the evaluating phase.
 
 Status: implemented in the current Vue codebase. The deterministic evaluator lives in
 `src/game/strategy.ts` (`recommendHolds`), reusing `RANK_VALUES` and `evaluateHand`
 and following the 16-row `strategyRows` priority order. A header hint toggle in
 `App.vue` drives a `recommendedIds` computed that marks recommended cards in
-`PlayingCard.vue` (dashed blue ring plus corner dot and an aria suffix), visually
-distinct from the gold held state and never altering held state. Unit tests cover a
-representative hand per priority (`tests/strategy.test.ts`); App tests cover the
-toggle and non-mutation of hold state (`tests/app.test.ts`).
+`PlayingCard.vue` with a subtle blue corner dot plus an aria suffix, visually distinct
+from the gold held state and never altering held state. The follow-up win highlight
+adds `winningCardIds` in `src/game/handEvaluator.ts` (the scoring cards for the final
+hand) and a `winningIds` computed in `App.vue`, active only in the evaluating phase on
+a win; those cards get a green dashed ring in `PlayingCard.vue`, while the held
+annotation is gated to the holding phase via a `showHeld` computed. The three
+annotations never collide (hint only in holding, winning only in evaluating). Unit
+tests cover a representative hand per priority and `winningCardIds` per rank
+(`tests/strategy.test.ts`, `tests/game.test.ts`); App tests cover the hint toggle,
+non-mutation of hold state, held-hidden-on-reveal, and win-group highlighting
+(`tests/app.test.ts`).
+
+A follow-up code review removed two pieces of dead/redundant code surfaced during the
+Phase 8 work: `cardDisplay` in `src/game/deck.ts` and `HAND_RANK_LABELS` in
+`src/game/types.ts` (the latter duplicated `messages.handRanks`).
 
 ## Phase 9: Auto Play Mode
 
@@ -169,6 +190,15 @@ Goal: let the app repeatedly play strategy-optimal hands and measure credits eve
 - Keep the loop paced enough that UI updates remain visible and the browser stays responsive.
 - Stop automatically when credits are insufficient for the next hand.
 - Localize auto play controls and status text.
+- Add a new-game/reset control that restores credits and stats once credits are
+  exhausted (carried over from review gap A). Auto play stops at zero credits, so
+  without a reset the game dead-ends; the reset makes repeated auto-play sessions
+  usable. Reuse `createInitialGameState()` in `src/game/gameState.ts`.
+- Fix card accessibility labels so a revealed (non-holding) card no longer announces
+  a "Hold {rank} of {suit}" action it cannot perform (carried over from review
+  gap B). Announce a neutral name during the evaluating phase, keeping the
+  "winning card" suffix when applicable. Change is scoped to `PlayingCard.vue`
+  `actionLabel` plus a localized neutral-name key in `messages.ts`.
 
 Acceptance:
 
@@ -176,9 +206,29 @@ Acceptance:
 - Credits ever played increments correctly for every auto-played hand.
 - Auto play can be stopped by the user.
 - Manual controls are not usable while auto play is running.
-- Tests cover autoplay start, stop, stat updates, and out-of-credits behavior.
+- A new-game/reset control restores play after credits run out (gap A).
+- Revealed cards do not announce a hold action they cannot perform (gap B).
+- Tests cover autoplay start, stop, stat updates, out-of-credits behavior, the
+  reset control, and revealed-card accessibility labels.
 
-Status: planned.
+Status: implemented. The loop lives in `src/composables/useAutoPlay.ts`
+(`useAutoPlay(game)`), a timer over the game ref that applies `recommendHolds` via the
+new `setHolds` in `gameState.ts`, draws, then deals the next hand, stopping when
+credits fall below the bet. Auto play is a hidden mode: there is no visible toggle;
+holding the Draw button for 3 seconds (`GameControls.vue` pointer long-press →
+`requestAutoPlay`) opens a confirmation dialog in `App.vue`, and only on confirm does
+it start. While running, `GameControls.vue` shows a Stop button, card and draw/next
+interaction is disabled, and a speed slider under the cards picks 1x/10x/50x/100x
+(`AUTO_PLAY_SPEEDS`; the tick delay is the base interval divided by the multiplier).
+Gap A adds a New game reset (`handleNewGame` → `dealNewHand(createInitialGameState())`)
+shown when credits run out. Credits ever played is tracked by the existing
+`totalBets`/`handsPlayed` stats, which update live during auto play. Gap B moved card
+labels to a neutral name (`cardName` i18n key) in the evaluating phase via a
+`revealed` prop on `PlayingCard.vue`, keeping held visible during holding and the
+winning suffix on reveal. Tests: `tests/autoPlay.test.ts` (loop, holds-before-draw,
+speed multiplier, out-of-credits start refusal and mid-loop stop), `setHolds` in
+`tests/game.test.ts`, and long-press/confirm/Stop/speed-slider/New game/neutral-label
+coverage in `tests/app.test.ts`.
 
 ## Phase 10: Stats Header And Graphical Card Assets
 
@@ -206,7 +256,7 @@ Status: planned. Do not implement until the graphical card asset source is selec
 
 Current status:
 
-- Phases 1 through 8 are implemented. Phases 9 and 10 are planned.
+- Phases 1 through 9 are implemented. Phase 10 is planned (blocked on card assets).
 - The app is a Vue 3 + TypeScript + Vite SPA using npm and Vitest.
 - Core Jacks-or-Better game logic is implemented and covered by unit tests.
 - The playable game UI is wired to the game-state functions.
@@ -215,6 +265,7 @@ Current status:
 - A compact UI refinement balanced card typography with rank-only corners, rendered strategy guidance as a table, and tightened spacing for mobile landscape browsers.
 - English and Traditional Chinese localization are implemented with a local i18n layer and segmented header language control.
 - Phase 8 added a deterministic strategy engine (`src/game/strategy.ts`) and an optional hint mode toggled from the header; hints mark recommended cards without changing hold state.
+- Phase 9 added an auto play loop (`src/composables/useAutoPlay.ts`) that plays strategy-optimal hands, hidden behind a 3-second long-press on Draw with a confirmation dialog, a 1x/10x/50x/100x speed slider shown while running, a New game reset for the out-of-credits case, and neutral accessibility labels for revealed cards.
 - Final automated release-readiness checks pass.
 - Cards use the simple CSS/HTML rank-corner and center-suit rendering until Phase 10 assets are selected.
 
@@ -235,4 +286,6 @@ Do not create additional documentation files unless explicitly instructed.
 
 Next target:
 
-- Start Phase 9 by implementing auto play mode, reusing the Phase 8 `recommendHolds` evaluator.
+- Phase 10 (stats header and graphical card assets) is the only remaining phase, and
+  it is blocked until the graphical card asset source is selected or provided. Do not
+  start it until assets are approved.

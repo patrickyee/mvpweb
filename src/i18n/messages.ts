@@ -38,7 +38,15 @@ export interface LocaleMessages {
   tryNextHand: string;
   holdCard: string;
   releaseCard: string;
+  cardName: string;
   held: string;
+  autoPlay: string;
+  stopAutoPlay: string;
+  autoPlayPrompt: string;
+  autoPlayConfirm: string;
+  autoPlaySpeedLabel: string;
+  cancel: string;
+  newGame: string;
   strategy: string;
   priority: string;
   play: string;
@@ -79,7 +87,15 @@ export const messages: Record<Locale, LocaleMessages> = {
     tryNextHand: 'Lose. Try the next hand.',
     holdCard: 'Hold {rank} of {suit}',
     releaseCard: 'Release {rank} of {suit}',
+    cardName: '{rank} of {suit}',
     held: 'Held',
+    autoPlay: 'Auto play',
+    stopAutoPlay: 'Stop',
+    autoPlayPrompt: 'Start auto play? The game will keep playing strategy-optimal hands until you stop.',
+    autoPlayConfirm: 'Start auto play',
+    autoPlaySpeedLabel: 'Auto play speed',
+    cancel: 'Cancel',
+    newGame: 'New game',
     strategy: 'Strategy',
     priority: '#',
     play: 'Play',
@@ -165,7 +181,15 @@ export const messages: Record<Locale, LocaleMessages> = {
     tryNextHand: '輸。試試下一手。',
     holdCard: '保留{rank}{suit}',
     releaseCard: '取消保留{rank}{suit}',
+    cardName: '{rank}{suit}',
     held: '保留',
+    autoPlay: '自動模式',
+    stopAutoPlay: '停止',
+    autoPlayPrompt: '要開始自動模式嗎？遊戲會持續以最佳策略出牌，直到你停止。',
+    autoPlayConfirm: '開始自動模式',
+    autoPlaySpeedLabel: '自動模式速度',
+    cancel: '取消',
+    newGame: '重新開始',
     strategy: '策略',
     priority: '#',
     play: '打法',

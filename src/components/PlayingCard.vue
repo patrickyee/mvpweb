@@ -6,6 +6,7 @@ import { useI18n } from '../i18n/useI18n';
 const props = defineProps<{
   card: Card;
   disabled: boolean;
+  revealed?: boolean;
   recommended?: boolean;
   winning?: boolean;
 }>();
@@ -20,16 +21,30 @@ const rankLabel = computed(() => RANK_LABELS[props.card.rank]);
 const suitSymbol = computed(() => SUIT_SYMBOLS[props.card.suit]);
 const accessibleRank = computed(() => messages.value.ranks[props.card.rank]);
 const accessibleSuit = computed(() => messages.value.suits[props.card.suit]);
-// The held annotation is a decision-phase affordance; once the hand is revealed
-// (the card is no longer interactive) the winning-group annotation takes over.
-const showHeld = computed(() => props.card.held && !props.disabled);
+// The held annotation is a decision-phase affordance; once the hand is revealed the
+// winning-group annotation takes over. This is keyed off the phase (revealed), not
+// interactivity, so held stays visible while auto play holds cards it also disables.
+const showHeld = computed(() => props.card.held && !props.revealed);
 const actionLabel = computed(() => {
-  const base = props.card.held
-    ? t(messages.value.releaseCard, { rank: accessibleRank.value, suit: accessibleSuit.value })
-    : t(messages.value.holdCard, { rank: accessibleRank.value, suit: accessibleSuit.value });
-  if (props.winning) {
-    return `${base} · ${messages.value.winningCard}`;
+  const rank = accessibleRank.value;
+  const suit = accessibleSuit.value;
+
+  // A non-interactive card must not announce a "Hold …" action it cannot perform;
+  // use a neutral name plus whichever state annotation currently applies.
+  if (props.disabled) {
+    const name = t(messages.value.cardName, { rank, suit });
+    if (props.winning) {
+      return `${name} · ${messages.value.winningCard}`;
+    }
+    if (showHeld.value) {
+      return `${name} · ${messages.value.held}`;
+    }
+    return name;
   }
+
+  const base = props.card.held
+    ? t(messages.value.releaseCard, { rank, suit })
+    : t(messages.value.holdCard, { rank, suit });
   return props.recommended ? `${base} · ${messages.value.recommendedHold}` : base;
 });
 </script>

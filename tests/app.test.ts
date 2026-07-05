@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils';
 import { nextTick } from 'vue';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import App from '../src/App.vue';
 import GameControls from '../src/components/GameControls.vue';
 import StrategyPanel from '../src/components/StrategyPanel.vue';
@@ -171,12 +171,14 @@ describe('GameControls', () => {
         canContinue: true,
         resultMessage: 'Royal Flush pays 800.',
         resultTone: 'win',
+        autoPlaying: false,
+        autoPlaySpeed: 1,
       },
     });
 
     expect(wrapper.text()).toContain('Royal Flush pays 800.');
     expect(wrapper.find('.result-message--win').exists()).toBe(true);
-    expect(wrapper.find('button').text()).toBe('Next Hand');
+    expect(wrapper.find('.primary-action').text()).toBe('Next Hand');
   });
 
   it('displays a losing state', () => {
@@ -186,6 +188,8 @@ describe('GameControls', () => {
         canContinue: true,
         resultMessage: 'Lose. Try the next hand.',
         resultTone: 'loss',
+        autoPlaying: false,
+        autoPlaySpeed: 1,
       },
     });
 
@@ -193,17 +197,97 @@ describe('GameControls', () => {
     expect(wrapper.find('.result-message--loss').exists()).toBe(true);
   });
 
-  it('disables continuing when out of credits', () => {
+  it('offers a new game with no auto play control when out of credits', () => {
     const wrapper = mount(GameControls, {
       props: {
         phase: 'evaluating',
         canContinue: false,
         resultMessage: 'Lose. Out of credits.',
         resultTone: 'loss',
+        autoPlaying: false,
+        autoPlaySpeed: 1,
       },
     });
 
-    expect(wrapper.find('button').attributes('disabled')).toBeDefined();
+    const primary = wrapper.find('.primary-action');
+    expect(primary.text()).toBe('New game');
+    expect(primary.attributes('disabled')).toBeUndefined();
+
+    primary.trigger('click');
+    expect(wrapper.emitted('newGame')).toHaveLength(1);
+  });
+
+  it('shows a stop button that emits toggle while auto playing', async () => {
+    const wrapper = mount(GameControls, {
+      props: {
+        phase: 'holding',
+        canContinue: true,
+        resultMessage: 'Choose cards to hold, then draw.',
+        resultTone: 'neutral',
+        autoPlaying: true,
+        autoPlaySpeed: 1,
+      },
+    });
+
+    const stop = wrapper.find('.primary-action--stop');
+    expect(stop.text()).toBe('Stop');
+
+    await stop.trigger('click');
+    expect(wrapper.emitted('toggleAutoPlay')).toHaveLength(1);
+  });
+
+  it('requests auto play only after a long press on Draw', () => {
+    vi.useFakeTimers();
+    const wrapper = mount(GameControls, {
+      props: {
+        phase: 'holding',
+        canContinue: true,
+        resultMessage: 'Choose cards to hold, then draw.',
+        resultTone: 'neutral',
+        autoPlaying: false,
+        autoPlaySpeed: 1,
+      },
+    });
+    const draw = wrapper.find('.primary-action');
+
+    // A quick click just draws.
+    draw.trigger('click');
+    expect(wrapper.emitted('draw')).toHaveLength(1);
+    expect(wrapper.emitted('requestAutoPlay')).toBeUndefined();
+
+    // Holding for the full duration requests auto play and swallows the click.
+    draw.trigger('pointerdown');
+    vi.advanceTimersByTime(3000);
+    expect(wrapper.emitted('requestAutoPlay')).toHaveLength(1);
+
+    draw.trigger('click');
+    expect(wrapper.emitted('draw')).toHaveLength(1);
+
+    vi.useRealTimers();
+  });
+
+  it('does not request auto play if the press is released early', () => {
+    vi.useFakeTimers();
+    const wrapper = mount(GameControls, {
+      props: {
+        phase: 'holding',
+        canContinue: true,
+        resultMessage: 'Choose cards to hold, then draw.',
+        resultTone: 'neutral',
+        autoPlaying: false,
+        autoPlaySpeed: 1,
+      },
+    });
+    const draw = wrapper.find('.primary-action');
+
+    draw.trigger('pointerdown');
+    vi.advanceTimersByTime(1500);
+    draw.trigger('pointerup');
+    vi.advanceTimersByTime(3000);
+
+    expect(wrapper.emitted('requestAutoPlay')).toBeUndefined();
+
+    vi.useRealTimers();
   });
 
   it('announces result messages politely and atomically', () => {
@@ -213,6 +297,8 @@ describe('GameControls', () => {
         canContinue: true,
         resultMessage: 'Lose. Try the next hand.',
         resultTone: 'loss',
+        autoPlaying: false,
+        autoPlaySpeed: 1,
       },
     });
     const result = wrapper.find('.result-message');
@@ -259,10 +345,12 @@ describe('StrategyPanel', () => {
   });
 });
 
-// Reconstruct the dealt hand from the English card aria-labels ("Hold ace of hearts").
+// Reconstruct the dealt hand from the English card aria-labels. Handles both the
+// interactive form ("Hold ace of hearts") and the revealed neutral form
+// ("ace of hearts · winning card").
 function readHandIds(labels: (string | undefined)[]): string[] {
   return labels.map((label) => {
-    const match = /^(?:Hold|Release) (\S+) of (\S+)/.exec(label ?? '');
+    const match = /(\S+) of (\S+)/.exec(label ?? '');
     if (!match) {
       throw new Error(`Unexpected card label: ${label}`);
     }
@@ -347,5 +435,98 @@ describe('App win highlight', () => {
     cards.forEach((card, index) => {
       expect(card.classes().includes('playing-card--winning')).toBe(expected.has(handIds[index]));
     });
+  });
+
+  it('gives revealed cards a neutral name without a hold action', async () => {
+    const wrapper = mount(App);
+    expect(wrapper.find('.playing-card').attributes('aria-label')).toMatch(/^(Hold|Release) /);
+
+    await wrapper.find('.primary-action').trigger('click');
+
+    for (const card of wrapper.findAll('.playing-card')) {
+      const label = card.attributes('aria-label') ?? '';
+      expect(label).not.toMatch(/Hold|Release/);
+      expect(label).toMatch(/ of /);
+    }
+  });
+});
+
+describe('App auto play', () => {
+  beforeEach(() => {
+    useI18n().setLocale('en');
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  // The secret gesture: long-press Draw, then confirm the dialog.
+  async function activateAutoPlay(wrapper: ReturnType<typeof mount>): Promise<void> {
+    await wrapper.find('.primary-action').trigger('pointerdown');
+    vi.advanceTimersByTime(3000);
+    await nextTick();
+    await wrapper.find('.confirm-dialog .primary-action').trigger('click');
+    await nextTick();
+  }
+
+  it('keeps auto play hidden and requires confirmation via a Draw long-press', async () => {
+    vi.useFakeTimers();
+    const wrapper = mount(App);
+
+    // No auto play control is visible up front.
+    expect(wrapper.find('.primary-action--stop').exists()).toBe(false);
+    expect(wrapper.find('.auto-speed').exists()).toBe(false);
+
+    // Long-press opens the confirmation dialog but does not start yet.
+    await wrapper.find('.primary-action').trigger('pointerdown');
+    vi.advanceTimersByTime(3000);
+    await nextTick();
+    expect(wrapper.find('.confirm-dialog').exists()).toBe(true);
+    expect(wrapper.find('.primary-action--stop').exists()).toBe(false);
+
+    // Cancelling closes the dialog without starting.
+    await wrapper.find('.secondary-action').trigger('click');
+    expect(wrapper.find('.confirm-dialog').exists()).toBe(false);
+    expect(wrapper.find('.primary-action--stop').exists()).toBe(false);
+  });
+
+  it('runs after confirmation, disables manual controls, and can be stopped', async () => {
+    vi.useFakeTimers();
+    const wrapper = mount(App);
+
+    await activateAutoPlay(wrapper);
+
+    expect(wrapper.find('.primary-action--stop').text()).toBe('Stop');
+    expect(wrapper.find('.auto-speed').exists()).toBe(true);
+    expect(wrapper.find('.playing-card').attributes('disabled')).toBeDefined();
+
+    const handsPlayed = () => Number(wrapper.findAll('.stats-grid dd')[3].text());
+    vi.advanceTimersByTime(650 * 6);
+    await nextTick();
+    expect(handsPlayed()).toBeGreaterThanOrEqual(1);
+
+    await wrapper.find('.primary-action--stop').trigger('click');
+    await nextTick();
+    expect(wrapper.find('.primary-action--stop').exists()).toBe(false);
+    expect(wrapper.find('.auto-speed').exists()).toBe(false);
+
+    const settled = handsPlayed();
+    vi.advanceTimersByTime(650 * 6);
+    await nextTick();
+    expect(handsPlayed()).toBe(settled);
+  });
+
+  it('changes the play speed from the slider', async () => {
+    vi.useFakeTimers();
+    const wrapper = mount(App);
+
+    await activateAutoPlay(wrapper);
+
+    const slider = wrapper.find('.auto-speed__slider');
+    await slider.setValue('3'); // index 3 -> 100x
+    await nextTick();
+
+    expect(slider.attributes('aria-valuetext')).toBe('100x');
+    expect(wrapper.find('.auto-speed__value').text()).toBe('100x');
   });
 });
