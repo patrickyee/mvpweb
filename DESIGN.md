@@ -113,11 +113,14 @@ Mobile layout:
 
 Cards should be readable and stable:
 
-- Fixed aspect ratio close to physical playing cards.
-- Rank and suit in opposing corners, with the lower corner rotated if practical.
-- Hearts and diamonds use red.
-- Clubs and spades use dark text in light mode and light text in dark mode.
-- Held cards show a clear border, background tint, and text label such as `Held`.
+- Each card is a button whose face is a graphical SVG (Vector-Playing-Cards by
+  Byron Knoll / notpeter, public domain; files `{RANK}{SUIT}.svg` under
+  `src/assets/cards/`, mapped in `src/components/cardImages.ts`).
+- Fixed `5:7` aspect ratio close to physical playing cards; the face image uses
+  `object-fit: contain` and never resizes when toggled.
+- State cues layer over the face rather than tinting it: held shows a solid gold ring
+  plus a `Held` label, the winning group shows a dashed green ring, and a losing hand
+  desaturates and dims all five faces.
 - Card buttons must not resize when toggled.
 
 ## Visual Style

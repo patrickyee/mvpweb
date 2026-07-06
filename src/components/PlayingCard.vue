@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { RANK_LABELS, SUIT_SYMBOLS, type Card } from '../game/types';
+import type { Card } from '../game/types';
 import { useI18n } from '../i18n/useI18n';
+import { cardImageUrl } from './cardImages';
 
 const props = defineProps<{
   card: Card;
@@ -16,9 +17,7 @@ const emit = defineEmits<{
 }>();
 
 const { messages, t } = useI18n();
-const isRedSuit = computed(() => props.card.suit === 'hearts' || props.card.suit === 'diamonds');
-const rankLabel = computed(() => RANK_LABELS[props.card.rank]);
-const suitSymbol = computed(() => SUIT_SYMBOLS[props.card.suit]);
+const faceUrl = computed(() => cardImageUrl(props.card));
 const accessibleRank = computed(() => messages.value.ranks[props.card.rank]);
 const accessibleSuit = computed(() => messages.value.suits[props.card.suit]);
 // The held annotation is a decision-phase affordance; once the hand is revealed the
@@ -54,7 +53,6 @@ const actionLabel = computed(() => {
     class="playing-card"
     :class="{
       'playing-card--held': showHeld,
-      'playing-card--red': isRedSuit,
       'playing-card--recommended': recommended,
       'playing-card--winning': winning,
     }"
@@ -64,10 +62,8 @@ const actionLabel = computed(() => {
     :disabled="disabled"
     @click="emit('toggle', card.id)"
   >
+    <img class="card-face" :src="faceUrl" alt="" aria-hidden="true" draggable="false" />
     <span v-if="recommended" class="hint-dot" aria-hidden="true"></span>
-    <span class="card-corner card-corner--top">{{ rankLabel }}</span>
-    <span class="card-center" aria-hidden="true">{{ suitSymbol }}</span>
     <span v-if="showHeld" class="held-label">{{ messages.held }}</span>
-    <span class="card-corner card-corner--bottom">{{ rankLabel }}</span>
   </button>
 </template>

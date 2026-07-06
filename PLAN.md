@@ -250,7 +250,16 @@ Acceptance:
 - Existing hold/draw/next-hand behavior is unchanged.
 - Tests cover the new stat label/value and asset-backed card rendering.
 
-Status: planned. Do not implement until the graphical card asset source is selected or provided.
+Status: implemented. The stats-header portion shipped with the earlier stats-bar
+refresh (the duplicated result stat was removed and a total-wager stat added). Card
+faces now render from public-domain SVG art (Vector-Playing-Cards by Byron Knoll /
+notpeter) vendored under `src/assets/cards/` and mapped by `src/components/cardImages.ts`
+via `import.meta.glob`; `PlayingCard.vue` renders an `img.card-face` inside the button
+(`object-fit: contain`, 5:7 preserved) with a decorative `alt` while the button keeps
+the accessible name and held state. Held/winning/losing cues moved off background tints
+to a gold ring, a dashed green ring, and a desaturate/dim filter respectively. Dead
+CSS/HTML card rendering (`card-corner`, `card-center`, `SUIT_SYMBOLS`) was removed. The
+card-face test replaced the old corner/center test.
 
 ## Phase 11: Settings
 
@@ -334,7 +343,7 @@ optimal selection, dots gone when broken).
 
 Current status:
 
-- Phases 1 through 9, Phase 11 (Settings), and Phase 12 (Updated Hint Mode) are implemented. Phase 10 is planned (blocked on card assets).
+- All phases (1 through 12) are implemented.
 - The app is a Vue 3 + TypeScript + Vite SPA using npm and Vitest.
 - Core Jacks-or-Better game logic is implemented and covered by unit tests.
 - The playable game UI is wired to the game-state functions.
@@ -344,8 +353,8 @@ Current status:
 - English and Traditional Chinese localization are implemented with a local i18n layer and segmented header language control.
 - Phase 8 added a deterministic strategy engine (`src/game/strategy.ts`) and an optional hint mode toggled from the header; hints mark recommended cards without changing hold state.
 - Phase 9 added an auto play loop (`src/composables/useAutoPlay.ts`) that plays strategy-optimal hands, hidden behind a 3-second long-press on Draw with a confirmation dialog, a 1x/10x/50x/100x speed slider shown while running, a New game reset for the out-of-credits case, and neutral accessibility labels for revealed cards.
+- Phase 10 replaced the CSS/HTML card rendering with public-domain SVG card faces (Vector-Playing-Cards) and moved held/win/loss cues to rings and a dim filter.
 - Final automated release-readiness checks pass.
-- Cards use the simple CSS/HTML rank-corner and center-suit rendering until Phase 10 assets are selected.
 
 Before starting new work, run:
 
@@ -364,5 +373,6 @@ Do not create additional documentation files unless explicitly instructed.
 
 Next target:
 
-- Phase 10 (stats header and graphical card assets) is the only remaining phase, and it
-  remains blocked until a graphical card asset source is selected or provided.
+- All planned phases are implemented. Possible follow-ups: optimize the card SVGs (the
+  hand-drawn court cards are ~0.5–1.1 MB each) with SVGO to cut asset weight, and add a
+  brief attribution note for the public-domain card art if desired.

@@ -49,16 +49,15 @@ describe('App playable UI', () => {
     expect(wrapper.find('.playing-card').text()).toContain('Held');
   });
 
-  it('renders rank-only corners while preserving center suit and accessible card name', () => {
+  it('renders a card-face image with a decorative alt and an accessible card name', () => {
     const wrapper = mount(App);
     const firstCard = wrapper.find('.playing-card');
-    const cornerTexts = firstCard.findAll('.card-corner').map((corner) => corner.text());
-    const centerSuit = firstCard.find('.card-center').text();
+    const face = firstCard.find('img.card-face');
 
-    expect(cornerTexts).toHaveLength(2);
-    expect(cornerTexts[0]).toBe(cornerTexts[1]);
-    expect(cornerTexts[0]).not.toMatch(/[♥♦♣♠]/);
-    expect(centerSuit).toMatch(/[♥♦♣♠]/);
+    expect(face.exists()).toBe(true);
+    expect(face.attributes('src')).toMatch(/\.svg/);
+    expect(face.attributes('alt')).toBe('');
+    expect(face.attributes('aria-hidden')).toBe('true');
     expect(firstCard.attributes('aria-label')).toMatch(/Hold .+ of .+/);
   });
 

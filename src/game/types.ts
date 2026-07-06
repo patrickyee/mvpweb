@@ -50,13 +50,6 @@ export const RANK_LABELS: Record<Rank, string> = {
   ace: 'A',
 };
 
-export const SUIT_SYMBOLS: Record<Suit, string> = {
-  hearts: '♥',
-  diamonds: '♦',
-  clubs: '♣',
-  spades: '♠',
-};
-
 export interface Card {
   readonly id: string;
   readonly suit: Suit;
