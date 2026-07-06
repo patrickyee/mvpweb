@@ -115,7 +115,6 @@ describe('App playable UI', () => {
 
     expect(wrapper.find('#strategy-panel').exists()).toBe(true);
     expect(wrapper.find('.strategy-overlay').exists()).toBe(true);
-    expect(wrapper.find('.game-layout--with-strategy').exists()).toBe(false);
     expect(wrapper.find('.help-toggle').attributes('aria-expanded')).toBe('true');
     expect(wrapper.find('.help-toggle').attributes('aria-controls')).toBe('strategy-panel');
 

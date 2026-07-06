@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import type { HandRank, HandStat } from '../game/types';
+import { PAYING_HAND_RANKS } from '../game/handEvaluator';
 import { useI18n } from '../i18n/useI18n';
 
 const props = defineProps<{
@@ -13,21 +14,8 @@ defineEmits<{
 
 const { messages } = useI18n();
 
-// Winning hands, best first.
-const WIN_ORDER: readonly HandRank[] = [
-  'royalFlush',
-  'straightFlush',
-  'fourOfAKind',
-  'fullHouse',
-  'flush',
-  'straight',
-  'threeOfAKind',
-  'twoPair',
-  'jacksOrBetter',
-];
-
 const rows = computed(() =>
-  WIN_ORDER.map((rank) => ({
+  PAYING_HAND_RANKS.map((rank) => ({
     rank,
     name: messages.value.handRanks[rank],
     count: props.handStats[rank].count,
@@ -37,7 +25,7 @@ const rows = computed(() =>
 
 const totalCount = computed(() => rows.value.reduce((sum, row) => sum + row.count, 0));
 const totalPayout = computed(() =>
-  WIN_ORDER.reduce((sum, rank) => sum + props.handStats[rank].payout, 0).toFixed(2),
+  PAYING_HAND_RANKS.reduce((sum, rank) => sum + props.handStats[rank].payout, 0).toFixed(2),
 );
 </script>
 

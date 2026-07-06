@@ -2,14 +2,14 @@
 
 ## Product
 
-This app is a Vue.js recreation of the SwiftUI MVP: a single-player Jacks-or-Better video poker SPA. The player starts with credits, plays one-credit hands, chooses which cards to hold, draws replacements, and sees the result, winnings, hand count, and RTP.
+This app is a Vue.js recreation of the SwiftUI MVP: a single-player Jacks-or-Better video poker SPA. The player starts with credits, plays configured-stake hands, chooses which cards to hold, draws replacements, and sees the result, winnings, hand count, and RTP.
 
 The app should feel like a clean utility game: fast to understand, quick to replay, and visually clear under repeated use.
 
 ## Core Game Loop
 
 1. App loads and immediately deals a five-card hand.
-2. One credit is deducted.
+2. The configured per-hand wager is deducted.
 3. Player taps cards to hold or unhold them.
 4. Player taps `Draw`.
 5. Unheld cards are replaced from the current deck.
@@ -17,7 +17,7 @@ The app should feel like a clean utility game: fast to understand, quick to repl
 7. Win or loss is displayed.
 8. Player taps `Next Hand`, which starts another fresh deal.
 
-The app does not need a separate betting screen for the recreated MVP because the original game auto-deals on launch and uses a fixed one-credit bet.
+The app does not need a separate betting screen because it auto-deals on launch. Stake configuration lives in settings rather than in a separate pre-hand betting flow.
 
 ## State Model
 
@@ -170,7 +170,7 @@ Rounded corners should stay modest, generally `8px` or less for panels and contr
 
 ## Monte Carlo Simulation
 
-- A separate `/simulate` page runs the game headlessly with the optimal strategy. The
+- A hidden `/simulate` page runs the game headlessly with the optimal strategy. The
   player picks the wager per card and starting credits (same options as the game) and a
   number of simulations; each run plays until bust and records the total wager.
 - Results are shown as a log-scale histogram with percentile summary stats

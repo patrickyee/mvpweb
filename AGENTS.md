@@ -38,10 +38,11 @@ Avoid copying Swift code directly. Translate the behavior, state model, and UI i
 
 ## Game Rules To Preserve
 
-- Start with `1000` credits.
+- Start with configurable credits; the current default is `100`.
 - Use one 52-card deck with suits hearts, diamonds, clubs, and spades.
 - Ranks run from `2` through ace.
-- Each hand costs `1` credit.
+- Each hand costs the configured wager per card across five cards; the current default
+  is `0.25` per card, so the default hand wager is `1.25`.
 - Deal five cards.
 - Player may hold selected cards.
 - Draw replaces unheld cards.
@@ -52,19 +53,20 @@ Avoid copying Swift code directly. Translate the behavior, state model, and UI i
 
 ## Payout Table
 
-Use Jacks-or-Better payouts for a one-credit bet:
+Use Jacks-or-Better base payouts for a five-credit pay table. Actual credits paid are
+the base value multiplied by the configured wager per card:
 
 | Hand | Payout |
 | --- | ---: |
-| Royal Flush | 800 |
-| Straight Flush | 50 |
-| Four of a Kind | 25 |
-| Full House | 9 |
-| Flush | 6 |
-| Straight | 4 |
-| Three of a Kind | 3 |
-| Two Pair | 2 |
-| Jacks or Better | 1 |
+| Royal Flush | 1500 |
+| Straight Flush | 250 |
+| Four of a Kind | 125 |
+| Full House | 30 |
+| Flush | 25 |
+| Straight | 20 |
+| Three of a Kind | 15 |
+| Two Pair | 10 |
+| Jacks or Better | 5 |
 | High Card | 0 |
 
 `Pair` means jacks or better only. Low pairs are not winning hands.

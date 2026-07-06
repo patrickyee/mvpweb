@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { handWager } from '../game/gameState';
-import { PAYOUTS } from '../game/handEvaluator';
-import type { HandRank } from '../game/types';
+import { PAYING_HAND_RANKS, PAYOUTS } from '../game/handEvaluator';
 import { useI18n } from '../i18n/useI18n';
 
 const props = defineProps<{
@@ -15,21 +14,8 @@ defineEmits<{
 
 const { messages, t } = useI18n();
 
-// Paying hands, best first.
-const PAY_ORDER: readonly HandRank[] = [
-  'royalFlush',
-  'straightFlush',
-  'fourOfAKind',
-  'fullHouse',
-  'flush',
-  'straight',
-  'threeOfAKind',
-  'twoPair',
-  'jacksOrBetter',
-];
-
 const rows = computed(() =>
-  PAY_ORDER.map((rank) => ({
+  PAYING_HAND_RANKS.map((rank) => ({
     rank,
     name: messages.value.handRanks[rank],
     base: PAYOUTS[rank],

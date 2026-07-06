@@ -24,7 +24,7 @@ Goal: port the Swift MVP behavior into testable TypeScript.
 - Implement shuffle and deal helpers.
 - Implement Jacks-or-Better hand evaluation.
 - Implement payouts.
-- Implement fixed one-credit game state transitions.
+- Implement the initial fixed-wager game state transitions.
 - Decide and test ace-low straight handling.
 
 Acceptance:
@@ -134,7 +134,8 @@ Goal: compute the best hold choice for the current hand and surface it as option
 - Return the card IDs that should be held for the current dealt hand.
 - Match the existing strategy priority table as the source of truth.
 - Add a hint mode toggle.
-- When hint mode is enabled, subtly mark recommended held cards.
+- When hint mode is enabled, subtly mark recommended held cards. This original
+  answer-reveal behavior was later replaced by Phase 12's correctness-check behavior.
 - Hints must not automatically change held state.
 - Keep hint styling visually distinct from selected/held styling.
 - Localize hint controls and accessibility labels.
@@ -149,7 +150,8 @@ Follow-up additions (built after the original scope above):
 Acceptance:
 
 - Unit tests cover representative hands for every strategy priority.
-- Hint mode marks only the recommended cards.
+- Hint mode marks only the recommended cards. Phase 12 later narrows when those marks
+  appear.
 - Manual hold state remains user-controlled.
 - Hint mode can be enabled/disabled without starting a new hand.
 - Existing game logic and payouts are unchanged.
@@ -160,18 +162,19 @@ Acceptance:
 Status: implemented in the current Vue codebase. The deterministic evaluator lives in
 `src/game/strategy.ts` (`recommendHolds`), reusing `RANK_VALUES` and `evaluateHand`
 and following the 16-row `strategyRows` priority order. A header hint toggle in
-`App.vue` drives a `recommendedIds` computed that marks recommended cards in
+`App.vue` originally drove a `recommendedIds` computed that marked recommended cards in
 `PlayingCard.vue` with a subtle blue corner dot plus an aria suffix, visually distinct
-from the gold held state and never altering held state. The follow-up win highlight
-adds `winningCardIds` in `src/game/handEvaluator.ts` (the scoring cards for the final
-hand) and a `winningIds` computed in `App.vue`, active only in the evaluating phase on
-a win; those cards get a green dashed ring in `PlayingCard.vue`, while the held
-annotation is gated to the holding phase via a `showHeld` computed. The three
-annotations never collide (hint only in holding, winning only in evaluating). Unit
-tests cover a representative hand per priority and `winningCardIds` per rank
-(`tests/strategy.test.ts`, `tests/game.test.ts`); App tests cover the hint toggle,
-non-mutation of hold state, held-hidden-on-reveal, and win-group highlighting
-(`tests/app.test.ts`).
+from the gold held state and never altering held state. Phase 12 intentionally changed
+this into a correctness check: dots appear only after the held cards exactly match the
+recommended set. The follow-up win highlight adds `winningCardIds` in
+`src/game/handEvaluator.ts` (the scoring cards for the final hand) and a `winningIds`
+computed in `App.vue`, active only in the evaluating phase on a win; those cards get a
+green dashed ring in `PlayingCard.vue`, while the held annotation is gated to the
+holding phase via a `showHeld` computed. The annotations never collide (hint only in
+holding, winning only in evaluating). Unit tests cover a representative hand per
+priority and `winningCardIds` per rank (`tests/strategy.test.ts`,
+`tests/game.test.ts`); App tests cover the hint toggle, non-mutation of hold state,
+held-hidden-on-reveal, and win-group highlighting (`tests/app.test.ts`).
 
 A follow-up code review removed two pieces of dead/redundant code surfaced during the
 Phase 8 work: `cardDisplay` in `src/game/deck.ts` and `HAND_RANK_LABELS` in
@@ -236,7 +239,7 @@ Goal: update the stat header and replace simple rendered cards after a suitable 
 
 - Replace the top-row win/lose result stat with credits ever played.
 - Keep win/loss feedback in the lower result/control area only.
-- Track credits ever played as total one-credit hands wagered.
+- Track credits ever played as total credits wagered.
 - Replace simple CSS/HTML card rendering with graphical card-face assets supplied or approved by the user.
 - Preserve the existing `5:7` card aspect ratio.
 - Keep card accessibility labels and held state behavior.
@@ -373,9 +376,9 @@ rendering in `tests/app.test.ts`.
 Goal: add a second page that runs the game headlessly many times and charts the
 distribution of total wager.
 
-- Add client-side routing (`vue-router`): `/` is the game, `/simulate` is the
-  simulation page; a header button links to it. Add a Cloudflare Pages SPA fallback so
-  deep links / refreshes on `/simulate` work.
+- Add client-side routing (`vue-router`): `/` is the game, `/simulate` is a hidden
+  simulation page. Add a Cloudflare Pages SPA fallback so deep links / refreshes on
+  `/simulate` work.
 - Parameters: wager per card and starting credits (same options as the game) plus a
   user-defined number of simulations.
 - On Run, auto-play N independent games with the optimal strategy until each busts,
@@ -400,7 +403,8 @@ reuses the game functions and runs in `src/sim/monteCarlo.worker.ts` via
 Because outcomes are heavy-tailed, the histogram uses a log-scale x-axis, the summary
 reports percentiles (p50/p90/p99 + max), and a metric toggle switches the chart between
 total wager and hands played (each game records both).
-Tests: `tests/monteCarlo.test.ts` (seeded engine + histogram) and routing/form tests in
+The route intentionally has no visible navigation from the game UI. Tests:
+`tests/monteCarlo.test.ts` (seeded engine + histogram) and routing/form tests in
 `tests/app.test.ts` (game tests now mount `GameView` with a memory router).
 
 ## Hand-Off For Next Coding Agent Session
@@ -415,7 +419,7 @@ Current status:
 - A follow-up UI refinement changed Help to a circular `?` control, moved strategy help into a dismissible overlay, removed the visible `Video Poker` title, locked cards to a `5:7` aspect ratio, and stabilized card keys to prevent hold-toggle reflow.
 - A compact UI refinement balanced card typography with rank-only corners, rendered strategy guidance as a table, and tightened spacing for mobile landscape browsers.
 - English and Traditional Chinese localization are implemented with a local i18n layer and segmented header language control.
-- Phase 8 added a deterministic strategy engine (`src/game/strategy.ts`) and an optional hint mode toggled from the header; hints mark recommended cards without changing hold state.
+- Phase 8 added a deterministic strategy engine (`src/game/strategy.ts`) and an optional hint mode toggled from the header; Phase 12 changed hints into a correctness check that marks the recommended cards only once the player has selected exactly that hold set, without changing hold state.
 - Phase 9 added an auto play loop (`src/composables/useAutoPlay.ts`) that plays strategy-optimal hands, hidden behind a 3-second long-press on Draw with a confirmation dialog, a 1x/10x/50x/100x speed slider shown while running, a New game reset for the out-of-credits case, and neutral accessibility labels for revealed cards.
 - Phase 10 replaced the CSS/HTML card rendering with public-domain SVG card faces (Vector-Playing-Cards) and moved held/win/loss cues to rings and a dim filter.
 - Phase 13 added per-hand-rank statistics (`handStats`) and a report popup opened from the RTP stat or automatically at game end.

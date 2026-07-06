@@ -14,6 +14,19 @@ export const PAYOUTS: Record<HandRank, number> = {
   highCard: 0,
 };
 
+// Paying hands, best first. Shared by payout/report UI so the rank order has one source.
+export const PAYING_HAND_RANKS: readonly HandRank[] = [
+  'royalFlush',
+  'straightFlush',
+  'fourOfAKind',
+  'fullHouse',
+  'flush',
+  'straight',
+  'threeOfAKind',
+  'twoPair',
+  'jacksOrBetter',
+];
+
 export function evaluateHand(cards: readonly Card[]): HandRank {
   if (cards.length !== 5) {
     return 'highCard';
