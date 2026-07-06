@@ -23,7 +23,7 @@ function makeRouter() {
   });
 }
 
-// The game now lives at the "/" route; mount GameView with a router so RouterLink resolves.
+// The game now lives at the "/" route; mount GameView with a router for routed context.
 function mountGame() {
   return mount(GameView, { global: { plugins: [makeRouter()] } });
 }
@@ -688,6 +688,7 @@ describe('Routing and simulation page', () => {
     const wrapper = mount(App, { global: { plugins: [router] } });
     expect(wrapper.findAll('.playing-card')).toHaveLength(5);
     expect(wrapper.find('.sim-form').exists()).toBe(false);
+    expect(wrapper.find('a[href="/simulate"]').exists()).toBe(false);
 
     await router.push('/simulate');
     await nextTick();

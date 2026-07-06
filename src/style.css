@@ -203,8 +203,7 @@ select {
 }
 
 .settings-toggle,
-.paytable-toggle,
-.simulation-toggle {
+.paytable-toggle {
   width: 34px;
   height: 34px;
   display: inline-grid;
@@ -220,14 +219,12 @@ select {
 }
 
 .settings-toggle:hover,
-.paytable-toggle:hover,
-.simulation-toggle:hover {
+.paytable-toggle:hover {
   background: #eef7ef;
 }
 
 .settings-toggle:focus-visible,
-.paytable-toggle:focus-visible,
-.simulation-toggle:focus-visible {
+.paytable-toggle:focus-visible {
   outline: 3px solid #2f7bff;
   outline-offset: 3px;
 }
@@ -921,8 +918,7 @@ select {
   .help-toggle,
   .hint-toggle,
   .settings-toggle,
-  .paytable-toggle,
-  .simulation-toggle {
+  .paytable-toggle {
     width: 30px;
     height: 30px;
     font-size: 0.95rem;
@@ -1067,16 +1063,14 @@ select {
   }
 
   .settings-toggle,
-  .paytable-toggle,
-  .simulation-toggle {
+  .paytable-toggle {
     border-color: rgb(237 244 239 / 0.16);
     color: #edf4ef;
     background: #1a251d;
   }
 
   .settings-toggle:hover,
-  .paytable-toggle:hover,
-  .simulation-toggle:hover {
+  .paytable-toggle:hover {
     background: #233328;
   }
 

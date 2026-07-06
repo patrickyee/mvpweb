@@ -259,10 +259,6 @@ onBeforeUnmount(() => {
         <span aria-hidden="true">📋</span>
       </button>
 
-      <RouterLink class="simulation-toggle" to="/simulate" :aria-label="messages.simulate">
-        <span aria-hidden="true">📊</span>
-      </RouterLink>
-
       <button
         class="help-toggle"
         type="button"
