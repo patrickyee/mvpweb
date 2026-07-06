@@ -384,21 +384,48 @@ describe('App hint mode', () => {
     expect(wrapper.findAll('.playing-card--recommended')).toHaveLength(0);
   });
 
-  it('marks exactly the strategy-recommended cards when enabled', async () => {
+  it('marks the recommended cards only once the correct holds are selected', async () => {
     const wrapper = mount(App);
     await wrapper.find('.hint-toggle').trigger('click');
+    expect(wrapper.find('.hint-toggle').attributes('aria-pressed')).toBe('true');
 
     const cards = wrapper.findAll('.playing-card');
     const handIds = readHandIds(cards.map((card) => card.attributes('aria-label')));
-    const recommended = new Set(recommendHolds(handIds.map((id) => {
-      const [rank, , suit] = id.split('-');
-      return createCard(rank as Rank, suit as Suit);
-    })));
+    const recommended = recommendHolds(
+      handIds.map((id) => {
+        const [rank, , suit] = id.split('-');
+        return createCard(rank as Rank, suit as Suit);
+      }),
+    );
 
-    cards.forEach((card, index) => {
-      expect(card.classes().includes('playing-card--recommended')).toBe(recommended.has(handIds[index]));
-    });
-    expect(wrapper.find('.hint-toggle').attributes('aria-pressed')).toBe('true');
+    // Enabling hint mode alone reveals nothing.
+    expect(wrapper.findAll('.playing-card--recommended')).toHaveLength(0);
+
+    // "Discard everything" hands have no cards to confirm.
+    if (recommended.length === 0) {
+      return;
+    }
+
+    // Select exactly the recommended cards.
+    for (let index = 0; index < handIds.length; index += 1) {
+      if (recommended.includes(handIds[index])) {
+        await cards[index].trigger('click');
+      }
+    }
+    await nextTick();
+
+    const markedIds = wrapper
+      .findAll('.playing-card')
+      .map((card, index) => ({ marked: card.classes().includes('playing-card--recommended'), id: handIds[index] }))
+      .filter((entry) => entry.marked)
+      .map((entry) => entry.id);
+    expect(markedIds.sort()).toEqual([...recommended].sort());
+
+    // Breaking the correct selection hides the dots again.
+    const firstRecommended = handIds.findIndex((id) => recommended.includes(id));
+    await wrapper.findAll('.playing-card')[firstRecommended].trigger('click');
+    await nextTick();
+    expect(wrapper.findAll('.playing-card--recommended')).toHaveLength(0);
   });
 
   it('does not change held state or deal a new hand when toggled', async () => {
@@ -449,6 +476,20 @@ describe('App win highlight', () => {
     cards.forEach((card, index) => {
       expect(card.classes().includes('playing-card--winning')).toBe(expected.has(handIds[index]));
     });
+  });
+
+  it('shades the whole hand on a losing draw', async () => {
+    const wrapper = mount(App);
+    await wrapper.find('.primary-action').trigger('click');
+
+    const handIds = readHandIds(wrapper.findAll('.playing-card').map((card) => card.attributes('aria-label')));
+    const hand = handIds.map((id) => {
+      const [rank, , suit] = id.split('-');
+      return createCard(rank as Rank, suit as Suit);
+    });
+    const isLoss = payoutForHand(hand) === 0;
+
+    expect(wrapper.find('.card-row').classes().includes('card-row--losing')).toBe(isLoss);
   });
 
   it('gives revealed cards a neutral name without a hold action', async () => {

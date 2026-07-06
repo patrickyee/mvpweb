@@ -378,6 +378,10 @@ select {
   background: #e4f5ea;
 }
 
+.card-row--losing .playing-card {
+  background: #ededed;
+}
+
 .playing-card--winning::after {
   content: '';
   position: absolute;
@@ -1022,6 +1026,10 @@ select {
 
   .playing-card--winning {
     background: #20362a;
+  }
+
+  .card-row--losing .playing-card {
+    background: #2b302d;
   }
 
   .playing-card--winning::after {

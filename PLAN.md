@@ -322,13 +322,19 @@ Acceptance:
 - Existing game logic and payouts are unchanged.
 - Tests cover the "no dots until correct, dots on match" behavior.
 
-Status: planned.
+Status: implemented. `App.vue`'s `recommendedIds` computed now returns the recommended
+set only when the held card ids exactly match `recommendHolds(hand)` (and it is
+non-empty); otherwise it is empty, so the blue dots appear only once the correct holds
+are selected and vanish if the selection changes. The aria suffix was reworded from
+"recommended hold" to "correct hold" (`recommendedHold` key, both locales). Covered by
+the reworked hint test in `tests/app.test.ts` (no dots on enable, dots on the exact
+optimal selection, dots gone when broken).
 
 ## Hand-Off For Next Coding Agent Session
 
 Current status:
 
-- Phases 1 through 9 and Phase 11 (Settings) are implemented. Phase 10 is planned (blocked on card assets); Phase 12 (Updated Hint Mode) is planned.
+- Phases 1 through 9, Phase 11 (Settings), and Phase 12 (Updated Hint Mode) are implemented. Phase 10 is planned (blocked on card assets).
 - The app is a Vue 3 + TypeScript + Vite SPA using npm and Vitest.
 - Core Jacks-or-Better game logic is implemented and covered by unit tests.
 - The playable game UI is wired to the game-state functions.
@@ -358,7 +364,5 @@ Do not create additional documentation files unless explicitly instructed.
 
 Next target:
 
-- Phase 12 (Updated Hint Mode) — show recommendation dots only when the player selects
-  the correct holds.
-- Phase 10 (stats header and graphical card assets) remains blocked until a graphical
-  card asset source is selected or provided.
+- Phase 10 (stats header and graphical card assets) is the only remaining phase, and it
+  remains blocked until a graphical card asset source is selected or provided.

@@ -47,12 +47,24 @@ const totalWagerLabel = computed(() =>
   (handWager(game.value.wagerPerCard) * game.value.handsPlayed).toFixed(2),
 );
 const isHolding = computed(() => game.value.phase === 'holding');
-const recommendedIds = computed(
-  () =>
-    new Set(
-      hintMode.value && isHolding.value && !autoPlaying.value ? recommendHolds(game.value.hand) : [],
-    ),
-);
+// Hint mode confirms correctness: the dots appear only once the held cards exactly
+// match the strategy-recommended holds (and there is something to hold).
+const recommendedIds = computed(() => {
+  if (!hintMode.value || !isHolding.value || autoPlaying.value) {
+    return new Set<string>();
+  }
+
+  const recommended = recommendHolds(game.value.hand);
+  if (recommended.length === 0) {
+    return new Set<string>();
+  }
+
+  const heldIds = game.value.hand.filter((card) => card.held).map((card) => card.id);
+  const matchesRecommended =
+    heldIds.length === recommended.length && recommended.every((id) => heldIds.includes(id));
+
+  return matchesRecommended ? new Set(recommended) : new Set<string>();
+});
 const winningIds = computed(
   () =>
     new Set(
@@ -60,6 +72,9 @@ const winningIds = computed(
         ? winningCardIds(game.value.hand)
         : [],
     ),
+);
+const isLosing = computed(
+  () => game.value.phase === 'evaluating' && game.value.lastWin === 0,
 );
 const canContinue = computed(() => game.value.credits >= handWager(game.value.wagerPerCard));
 
@@ -271,7 +286,11 @@ watchEffect(() => {
           :total-wager="totalWagerLabel"
         />
 
-        <section class="card-row" :aria-label="messages.currentHandLabel">
+        <section
+          class="card-row"
+          :class="{ 'card-row--losing': isLosing }"
+          :aria-label="messages.currentHandLabel"
+        >
           <PlayingCard
             v-for="card in game.hand"
             :key="card.id"
