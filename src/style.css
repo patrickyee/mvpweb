@@ -30,6 +30,8 @@ select {
 .game-shell {
   min-height: 100vh;
   padding: 16px;
+  display: flex;
+  flex-direction: column;
   background:
     radial-gradient(circle at top left, rgb(255 255 255 / 0.72), transparent 28rem),
     linear-gradient(135deg, #eef3ef, #d7e2da);
@@ -37,11 +39,46 @@ select {
 
 .game-layout {
   width: min(960px, 100%);
-  min-height: calc(100vh - 32px);
+  flex: 1;
   margin: 0 auto;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   align-items: center;
+}
+
+.app-footer {
+  width: min(960px, 100%);
+  margin: 12px auto 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  color: #5f6c62;
+  font-size: 0.8rem;
+}
+
+.app-footer__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: inherit;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.app-footer__link:hover {
+  color: #226946;
+  text-decoration: underline;
+}
+
+.app-footer__link:focus-visible {
+  outline: 3px solid #2f7bff;
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.app-footer__icon {
+  display: block;
 }
 
 .game-surface {
@@ -764,6 +801,14 @@ select {
   }
 
   .eyebrow {
+    color: #8cd4a6;
+  }
+
+  .app-footer {
+    color: #9fb0a4;
+  }
+
+  .app-footer__link:hover {
     color: #8cd4a6;
   }
 

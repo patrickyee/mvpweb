@@ -252,11 +252,72 @@ Acceptance:
 
 Status: planned. Do not implement until the graphical card asset source is selected or provided.
 
+## Phase 11: Settings
+
+Goal: let the player configure stakes and inspect the paytable. Take the payout
+scaler out of the constant and expose it, expose the starting credits, and restart the
+game whenever a setting changes.
+
+- Store base (unscaled) payouts in `PAYOUTS` (`src/game/handEvaluator.ts`): royal 1500,
+  straight flush 250, four of a kind 125, full house 30, flush 25, straight 20, three
+  of a kind 15, two pair 10, jacks or better 5, high card 0. Remove `FACTOR`/`WAGER`.
+- `payoutForHand(cards, wagerPerCard = 1)` returns `PAYOUTS[rank] * wagerPerCard`.
+- Add a wager-per-card setting via a dropdown with options `0.25, 0.5, 1.0, 2.0, 5.0`.
+  Carry `wagerPerCard` on the game state; the per-hand credit cost is
+  `handWager(wagerPerCard) = wagerPerCard * HAND_SIZE` (default 0.25 → 1.25, preserving
+  current behavior).
+- Add a starting-credits setting via a dropdown with presets `50, 100, 200, 500, 1000`;
+  `createInitialGameState(startingCredits?, wagerPerCard?)` seeds both.
+- Every time a setting changes, restart the game (`stopAutoPlay()` then re-deal a fresh
+  initial state); `dealNewHand`/`draw`/`useAutoPlay` read the wager from the state.
+- Add a settings popup (⚙️ header button) holding the two dropdowns, following the
+  existing overlay pattern.
+- Add a pay-table popup (📋 header button) that displays the current paytable both as
+  base payouts and scaled by the wager per card, reusing the strategy-table styling and
+  `handRanks` labels.
+- Localize all new controls and labels (English and Traditional Chinese).
+- Reconcile `DESIGN.md` (add `wagerPerCard` to the state model; remove "Variable
+  betting" from Out Of Scope; document settings and the pay table).
+
+Acceptance:
+
+- `PAYOUTS` holds base values; `payoutForHand` scales by the wager per card.
+- Wager-per-card and starting-credits dropdowns work and restart the game on change.
+- The pay-table popup shows base and at-current-wager payouts in both locales.
+- Existing game behavior is unchanged at the default 0.25 wager per card.
+- Tests cover base vs scaled payouts, the parameterized initial state and `handWager`,
+  restart-on-change, and pay-table rendering.
+
+Status: planned.
+
+## Phase 12: Updated Hint Mode
+
+Goal: turn hint mode into a correctness check instead of an answer reveal. The blue
+recommendation dots appear only once the player has selected exactly the optimal hold
+set.
+
+- When hint mode is on during the holding phase, compute the recommended holds and
+  surface the dots only if the currently held cards exactly match that set (and the set
+  is non-empty); otherwise show no dots.
+- Dots disappear again if the selection changes away from the optimal holds.
+- When the optimal play is to discard everything, there are no cards to mark, so no
+  dots appear.
+- Hints still never change held state, and toggling hint mode never deals a new hand.
+
+Acceptance:
+
+- Hint on with no or incorrect holds shows no dots.
+- Dots appear only when the exact optimal holds are selected, and only on those cards.
+- Existing game logic and payouts are unchanged.
+- Tests cover the "no dots until correct, dots on match" behavior.
+
+Status: planned.
+
 ## Hand-Off For Next Coding Agent Session
 
 Current status:
 
-- Phases 1 through 9 are implemented. Phase 10 is planned (blocked on card assets).
+- Phases 1 through 9 are implemented. Phase 10 is planned (blocked on card assets); Phases 11 (Settings) and 12 (Updated Hint Mode) are planned.
 - The app is a Vue 3 + TypeScript + Vite SPA using npm and Vitest.
 - Core Jacks-or-Better game logic is implemented and covered by unit tests.
 - The playable game UI is wired to the game-state functions.
@@ -286,6 +347,10 @@ Do not create additional documentation files unless explicitly instructed.
 
 Next target:
 
-- Phase 10 (stats header and graphical card assets) is the only remaining phase, and
-  it is blocked until the graphical card asset source is selected or provided. Do not
-  start it until assets are approved.
+- Phase 11 (Settings) — implement the wager-per-card and starting-credits parameters,
+  restart-on-change, and the pay-table popup, taking the payout scaler out of the
+  constant.
+- Phase 12 (Updated Hint Mode) — show recommendation dots only when the player selects
+  the correct holds.
+- Phase 10 (stats header and graphical card assets) remains blocked until a graphical
+  card asset source is selected or provided.
