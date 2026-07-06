@@ -168,6 +168,17 @@ Rounded corners should stay modest, generally `8px` or less for panels and contr
 - It opens automatically when the game ends (credits run out) and whenever the player
   clicks the RTP stat.
 
+## Monte Carlo Simulation
+
+- A separate `/simulate` page runs the game headlessly with the optimal strategy. The
+  player picks the wager per card and starting credits (same options as the game) and a
+  number of simulations; each run plays until bust and records the total wager.
+- Results are shown as a log-scale histogram with percentile summary stats
+  (runs, p50, p90, p99, max), because outcomes are heavy-tailed (recycled winnings let
+  lucky runs wager far more than the buy-in). A metric toggle switches the chart between
+  total wager and hands played. Simulations run in a Web Worker to keep the UI
+  responsive and reuse the same pure game logic as the interactive game.
+
 ## Out Of Scope
 
 - Real-money gambling.

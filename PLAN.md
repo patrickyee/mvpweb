@@ -368,11 +368,46 @@ on that event and auto-opens it via a `watch` on a game-over computed. i18n keys
 both locales. Tests: `handStats` accumulation in `tests/game.test.ts`; RTP-open + table
 rendering in `tests/app.test.ts`.
 
+## Phase 14: Monte Carlo Simulation Page
+
+Goal: add a second page that runs the game headlessly many times and charts the
+distribution of total wager.
+
+- Add client-side routing (`vue-router`): `/` is the game, `/simulate` is the
+  simulation page; a header button links to it. Add a Cloudflare Pages SPA fallback so
+  deep links / refreshes on `/simulate` work.
+- Parameters: wager per card and starting credits (same options as the game) plus a
+  user-defined number of simulations.
+- On Run, auto-play N independent games with the optimal strategy until each busts,
+  record the total wager per game, and show a histogram of those totals (plus summary
+  stats). Run in a Web Worker so the UI stays responsive.
+- Localize all new labels (English and Traditional Chinese).
+
+Acceptance:
+
+- The simulation runs off the shared pure game logic and is deterministic for a seed.
+- Running N simulations produces a histogram of total wager with summary stats.
+- The game page is unchanged; routing works including refresh on `/simulate`.
+- Tests cover the simulation engine and histogram, plus routing/form rendering.
+
+Status: implemented. Routing lives in `src/router.ts` (+ `main.ts`); `App.vue` is now a
+shared shell (`<RouterView>` + footer + title) with the game extracted to
+`src/views/GameView.vue` and a new `src/views/SimulationView.vue`; the language toggle
+was extracted to `src/components/LanguageToggle.vue`. The pure engine
+`src/sim/monteCarlo.ts` (`simulateBankroll`, `runSimulations`, `buildHistogram`, caps)
+reuses the game functions and runs in `src/sim/monteCarlo.worker.ts` via
+`src/composables/useSimulation.ts`. `public/_redirects` provides the Pages SPA fallback.
+Because outcomes are heavy-tailed, the histogram uses a log-scale x-axis, the summary
+reports percentiles (p50/p90/p99 + max), and a metric toggle switches the chart between
+total wager and hands played (each game records both).
+Tests: `tests/monteCarlo.test.ts` (seeded engine + histogram) and routing/form tests in
+`tests/app.test.ts` (game tests now mount `GameView` with a memory router).
+
 ## Hand-Off For Next Coding Agent Session
 
 Current status:
 
-- All phases (1 through 13) are implemented.
+- All phases (1 through 14) are implemented.
 - The app is a Vue 3 + TypeScript + Vite SPA using npm and Vitest.
 - Core Jacks-or-Better game logic is implemented and covered by unit tests.
 - The playable game UI is wired to the game-state functions.
@@ -384,6 +419,7 @@ Current status:
 - Phase 9 added an auto play loop (`src/composables/useAutoPlay.ts`) that plays strategy-optimal hands, hidden behind a 3-second long-press on Draw with a confirmation dialog, a 1x/10x/50x/100x speed slider shown while running, a New game reset for the out-of-credits case, and neutral accessibility labels for revealed cards.
 - Phase 10 replaced the CSS/HTML card rendering with public-domain SVG card faces (Vector-Playing-Cards) and moved held/win/loss cues to rings and a dim filter.
 - Phase 13 added per-hand-rank statistics (`handStats`) and a report popup opened from the RTP stat or automatically at game end.
+- Phase 14 added client-side routing (`vue-router`), a shared `App.vue` shell with `src/views/GameView.vue`, and a Monte Carlo simulation page (`src/views/SimulationView.vue`) driven by a Web Worker (`src/sim/`), with a Pages SPA fallback (`public/_redirects`).
 - Final automated release-readiness checks pass.
 
 Before starting new work, run:
@@ -403,6 +439,7 @@ Do not create additional documentation files unless explicitly instructed.
 
 Next target:
 
-- All planned phases are implemented. Possible follow-ups: optimize the card SVGs (the
-  hand-drawn court cards are ~0.5–1.1 MB each) with SVGO to cut asset weight, and add a
-  brief attribution note for the public-domain card art if desired.
+- All planned phases (1–14) are implemented. Possible follow-ups: optimize the card SVGs
+  (the hand-drawn court cards are ~0.5–1.1 MB each) with SVGO to cut asset weight; add a
+  brief attribution note for the public-domain card art; and consider seed control /
+  CSV export for the Monte Carlo page.

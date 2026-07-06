@@ -1,14 +1,32 @@
 import { mount } from '@vue/test-utils';
 import { nextTick } from 'vue';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { createMemoryHistory, createRouter } from 'vue-router';
 import App from '../src/App.vue';
 import GameControls from '../src/components/GameControls.vue';
 import StrategyPanel from '../src/components/StrategyPanel.vue';
+import GameView from '../src/views/GameView.vue';
+import SimulationView from '../src/views/SimulationView.vue';
 import { createCard } from '../src/game/deck';
 import { payoutForHand, winningCardIds } from '../src/game/handEvaluator';
 import { recommendHolds } from '../src/game/strategy';
 import type { Rank, Suit } from '../src/game/types';
 import { useI18n } from '../src/i18n/useI18n';
+
+function makeRouter() {
+  return createRouter({
+    history: createMemoryHistory(),
+    routes: [
+      { path: '/', component: GameView },
+      { path: '/simulate', component: SimulationView },
+    ],
+  });
+}
+
+// The game now lives at the "/" route; mount GameView with a router so RouterLink resolves.
+function mountGame() {
+  return mount(GameView, { global: { plugins: [makeRouter()] } });
+}
 
 describe('App playable UI', () => {
   beforeEach(() => {
@@ -16,7 +34,7 @@ describe('App playable UI', () => {
   });
 
   it('renders an initial dealt hand and post-deal credits', () => {
-    const wrapper = mount(App);
+    const wrapper = mountGame();
     const cards = wrapper.findAll('.playing-card');
 
     expect(cards).toHaveLength(5);
@@ -26,7 +44,7 @@ describe('App playable UI', () => {
   });
 
   it('shows a brief three-stat bar with emoji and no duplicate result', () => {
-    const wrapper = mount(App);
+    const wrapper = mountGame();
     const stats = wrapper.find('.stats-grid');
     const values = stats.findAll('dd');
 
@@ -40,7 +58,7 @@ describe('App playable UI', () => {
   });
 
   it('marks a clicked card as held with visible text and aria state', async () => {
-    const wrapper = mount(App);
+    const wrapper = mountGame();
     const firstCard = wrapper.find('.playing-card');
 
     await firstCard.trigger('click');
@@ -50,7 +68,7 @@ describe('App playable UI', () => {
   });
 
   it('renders a card-face image with a decorative alt and an accessible card name', () => {
-    const wrapper = mount(App);
+    const wrapper = mountGame();
     const firstCard = wrapper.find('.playing-card');
     const face = firstCard.find('img.card-face');
 
@@ -63,7 +81,7 @@ describe('App playable UI', () => {
 
 
   it('draws into result state and disables card toggling', async () => {
-    const wrapper = mount(App);
+    const wrapper = mountGame();
 
     await wrapper.find('.playing-card').trigger('click');
     await wrapper.find('button.primary-action').trigger('click');
@@ -74,7 +92,7 @@ describe('App playable UI', () => {
   });
 
   it('starts another hand from the result state', async () => {
-    const wrapper = mount(App);
+    const wrapper = mountGame();
 
     await wrapper.find('button.primary-action').trigger('click');
     await wrapper.find('button.primary-action').trigger('click');
@@ -85,7 +103,7 @@ describe('App playable UI', () => {
   });
 
   it('opens and closes the strategy overlay with accessible toggle state', async () => {
-    const wrapper = mount(App);
+    const wrapper = mountGame();
     const helpButton = wrapper.find('.help-toggle');
 
     expect(wrapper.find('#strategy-panel').exists()).toBe(false);
@@ -108,7 +126,7 @@ describe('App playable UI', () => {
   });
 
   it('switches to Traditional Chinese without resetting the current game', async () => {
-    const wrapper = mount(App);
+    const wrapper = mountGame();
     const initialCredits = wrapper.findAll('.stats-grid dd')[0].text();
     const initialCardCount = wrapper.findAll('.playing-card').length;
 
@@ -131,7 +149,7 @@ describe('App playable UI', () => {
   });
 
   it('closes the strategy overlay from backdrop, close button, and Escape', async () => {
-    const wrapper = mount(App);
+    const wrapper = mountGame();
 
     await wrapper.find('.help-toggle').trigger('click');
     await wrapper.find('.strategy-overlay').trigger('click');
@@ -148,7 +166,7 @@ describe('App playable UI', () => {
   });
 
   it('keeps card hold and draw flow working when strategy is open', async () => {
-    const wrapper = mount(App);
+    const wrapper = mountGame();
 
     await wrapper.find('.help-toggle').trigger('click');
     await wrapper.find('.playing-card').trigger('click');
@@ -160,7 +178,7 @@ describe('App playable UI', () => {
   });
 
   it('keeps the five card buttons stable when holding a card', async () => {
-    const wrapper = mount(App);
+    const wrapper = mountGame();
     const beforeLabels = wrapper.findAll('.playing-card').map((card) => card.attributes('aria-label'));
 
     await wrapper.find('.playing-card').trigger('click');
@@ -377,14 +395,14 @@ describe('App hint mode', () => {
   });
 
   it('shows no recommendations until hint mode is enabled', () => {
-    const wrapper = mount(App);
+    const wrapper = mountGame();
 
     expect(wrapper.find('.hint-toggle').attributes('aria-pressed')).toBe('false');
     expect(wrapper.findAll('.playing-card--recommended')).toHaveLength(0);
   });
 
   it('marks the recommended cards only once the correct holds are selected', async () => {
-    const wrapper = mount(App);
+    const wrapper = mountGame();
     await wrapper.find('.hint-toggle').trigger('click');
     expect(wrapper.find('.hint-toggle').attributes('aria-pressed')).toBe('true');
 
@@ -428,7 +446,7 @@ describe('App hint mode', () => {
   });
 
   it('does not change held state or deal a new hand when toggled', async () => {
-    const wrapper = mount(App);
+    const wrapper = mountGame();
     const before = wrapper.findAll('.playing-card');
     const heldBefore = before.map((card) => card.attributes('aria-pressed'));
     const handBefore = readHandIds(before.map((card) => card.attributes('aria-label')));
@@ -450,7 +468,7 @@ describe('App win highlight', () => {
   });
 
   it('hides the held annotation once the hand is revealed', async () => {
-    const wrapper = mount(App);
+    const wrapper = mountGame();
     await wrapper.find('.playing-card').trigger('click');
     expect(wrapper.find('.playing-card--held').exists()).toBe(true);
 
@@ -461,7 +479,7 @@ describe('App win highlight', () => {
   });
 
   it('annotates exactly the winning group after the draw', async () => {
-    const wrapper = mount(App);
+    const wrapper = mountGame();
     await wrapper.find('.primary-action').trigger('click');
 
     const cards = wrapper.findAll('.playing-card');
@@ -478,7 +496,7 @@ describe('App win highlight', () => {
   });
 
   it('shades the whole hand on a losing draw', async () => {
-    const wrapper = mount(App);
+    const wrapper = mountGame();
     await wrapper.find('.primary-action').trigger('click');
 
     const handIds = readHandIds(wrapper.findAll('.playing-card').map((card) => card.attributes('aria-label')));
@@ -492,7 +510,7 @@ describe('App win highlight', () => {
   });
 
   it('gives revealed cards a neutral name without a hold action', async () => {
-    const wrapper = mount(App);
+    const wrapper = mountGame();
     expect(wrapper.find('.playing-card').attributes('aria-label')).toMatch(/^(Hold|Release) /);
 
     await wrapper.find('.primary-action').trigger('click');
@@ -525,7 +543,7 @@ describe('App auto play', () => {
 
   it('keeps auto play hidden and requires confirmation via a Draw long-press', async () => {
     vi.useFakeTimers();
-    const wrapper = mount(App);
+    const wrapper = mountGame();
 
     // No auto play control is visible up front.
     expect(wrapper.find('.primary-action--stop').exists()).toBe(false);
@@ -546,7 +564,7 @@ describe('App auto play', () => {
 
   it('runs after confirmation, disables manual controls, and can be stopped', async () => {
     vi.useFakeTimers();
-    const wrapper = mount(App);
+    const wrapper = mountGame();
 
     await activateAutoPlay(wrapper);
 
@@ -572,7 +590,7 @@ describe('App auto play', () => {
 
   it('changes the play speed from the slider', async () => {
     vi.useFakeTimers();
-    const wrapper = mount(App);
+    const wrapper = mountGame();
 
     await activateAutoPlay(wrapper);
 
@@ -591,7 +609,7 @@ describe('App settings and pay table', () => {
   });
 
   it('restarts the game with new stakes when the wager per card changes', async () => {
-    const wrapper = mount(App);
+    const wrapper = mountGame();
 
     await wrapper.find('.settings-toggle').trigger('click');
     await wrapper.find('#wager-per-card').setValue('1'); // per card 1 -> hand wager 5
@@ -604,7 +622,7 @@ describe('App settings and pay table', () => {
   });
 
   it('restarts with the chosen starting credits', async () => {
-    const wrapper = mount(App);
+    const wrapper = mountGame();
 
     await wrapper.find('.settings-toggle').trigger('click');
     await wrapper.find('#starting-credits').setValue('500');
@@ -615,7 +633,7 @@ describe('App settings and pay table', () => {
   });
 
   it('shows the pay table with base and at-current-wager payouts', async () => {
-    const wrapper = mount(App);
+    const wrapper = mountGame();
 
     await wrapper.find('.paytable-toggle').trigger('click');
     const table = wrapper.find('#pay-table-panel');
@@ -633,7 +651,7 @@ describe('App statistics report', () => {
   });
 
   it('opens from the RTP stat and lists winning hands with a total row', async () => {
-    const wrapper = mount(App);
+    const wrapper = mountGame();
     expect(wrapper.find('#report-panel').exists()).toBe(false);
 
     await wrapper.find('.rtp-button').trigger('click');
@@ -648,5 +666,49 @@ describe('App statistics report', () => {
 
     await panel.find('.strategy-close').trigger('click');
     expect(wrapper.find('#report-panel').exists()).toBe(false);
+  });
+});
+
+describe('Routing and simulation page', () => {
+  beforeEach(() => {
+    useI18n().setLocale('en');
+  });
+
+  it('renders the game at / and the simulation form at /simulate', async () => {
+    const router = createRouter({
+      history: createMemoryHistory(),
+      routes: [
+        { path: '/', component: GameView },
+        { path: '/simulate', component: SimulationView },
+      ],
+    });
+    router.push('/');
+    await router.isReady();
+
+    const wrapper = mount(App, { global: { plugins: [router] } });
+    expect(wrapper.findAll('.playing-card')).toHaveLength(5);
+    expect(wrapper.find('.sim-form').exists()).toBe(false);
+
+    await router.push('/simulate');
+    await nextTick();
+
+    expect(wrapper.find('.sim-form').exists()).toBe(true);
+    expect(wrapper.find('.playing-card').exists()).toBe(false);
+  });
+
+  it('renders the simulation form controls and Run button', async () => {
+    const router = makeRouter();
+    router.push('/simulate');
+    await router.isReady();
+
+    const wrapper = mount(SimulationView, { global: { plugins: [router] } });
+
+    expect(wrapper.find('#sim-wager').exists()).toBe(true);
+    expect(wrapper.find('#sim-credits').exists()).toBe(true);
+    expect(wrapper.find('#sim-count').exists()).toBe(true);
+    expect(wrapper.find('.primary-action').text()).toBe('Run');
+    // No results until a run completes.
+    expect(wrapper.find('.histogram').exists()).toBe(false);
+    expect(wrapper.find('.sim-empty').exists()).toBe(true);
   });
 });

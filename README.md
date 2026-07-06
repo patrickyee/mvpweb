@@ -2,6 +2,10 @@
 
 Vue.js SPA for training and testing Jacks-or-Better video poker strategy.
 
+Routes: `/` is the game and `/simulate` is a Monte Carlo simulation page. Client-side
+routing uses `vue-router` with history mode, so deployment relies on an SPA fallback
+(`public/_redirects` maps all paths to `index.html` for Cloudflare Pages).
+
 Start here:
 
 - `AGENTS.md` for contributor and coding-agent ground rules.

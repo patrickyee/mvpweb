@@ -203,7 +203,8 @@ select {
 }
 
 .settings-toggle,
-.paytable-toggle {
+.paytable-toggle,
+.simulation-toggle {
   width: 34px;
   height: 34px;
   display: inline-grid;
@@ -214,16 +215,19 @@ select {
   background: #ffffff;
   font-size: 1rem;
   line-height: 1;
+  text-decoration: none;
   cursor: pointer;
 }
 
 .settings-toggle:hover,
-.paytable-toggle:hover {
+.paytable-toggle:hover,
+.simulation-toggle:hover {
   background: #eef7ef;
 }
 
 .settings-toggle:focus-visible,
-.paytable-toggle:focus-visible {
+.paytable-toggle:focus-visible,
+.simulation-toggle:focus-visible {
   outline: 3px solid #2f7bff;
   outline-offset: 3px;
 }
@@ -327,6 +331,137 @@ select {
   outline: 3px solid #2f7bff;
   outline-offset: 3px;
   border-radius: 4px;
+}
+
+/* Monte Carlo simulation view */
+.sim-back {
+  margin-left: auto;
+  color: #226946;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.sim-back:hover {
+  text-decoration: underline;
+}
+
+.sim-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px 18px;
+  margin-bottom: 16px;
+}
+
+.sim-form .settings-field {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  margin: 0;
+}
+
+.sim-count {
+  width: 120px;
+}
+
+.sim-actions {
+  margin-left: auto;
+}
+
+.sim-progress-text {
+  margin: 0 0 6px;
+  color: #435047;
+  font-weight: 700;
+}
+
+.sim-progress {
+  height: 10px;
+  border-radius: 999px;
+  background: rgb(23 32 24 / 0.12);
+  overflow: hidden;
+}
+
+.sim-progress__bar {
+  height: 100%;
+  background: #226946;
+  transition: width 120ms ease;
+}
+
+.sim-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+  margin: 0 0 16px;
+}
+
+.sim-summary dt {
+  color: #5f6c62;
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+.sim-summary dd {
+  margin: 2px 0 0;
+  font-size: 1.1rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.histogram {
+  margin: 0;
+}
+
+.histogram__title {
+  margin-bottom: 8px;
+  color: #435047;
+  font-weight: 800;
+}
+
+.histogram__bars {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.histogram__row {
+  display: grid;
+  grid-template-columns: 6.5rem 1fr 3rem;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.histogram__range {
+  color: #5f6c62;
+  text-align: right;
+}
+
+.histogram__track {
+  height: 14px;
+  border-radius: 4px;
+  background: rgb(23 32 24 / 0.08);
+}
+
+.histogram__bar {
+  display: block;
+  height: 100%;
+  min-width: 2px;
+  border-radius: 4px;
+  background: #2f7bff;
+}
+
+.histogram__count {
+  text-align: right;
+  font-weight: 700;
+}
+
+.sim-empty {
+  margin: 8px 0 0;
+  color: #5f6c62;
 }
 
 .stats-grid {
@@ -786,7 +921,8 @@ select {
   .help-toggle,
   .hint-toggle,
   .settings-toggle,
-  .paytable-toggle {
+  .paytable-toggle,
+  .simulation-toggle {
     width: 30px;
     height: 30px;
     font-size: 0.95rem;
@@ -931,14 +1067,16 @@ select {
   }
 
   .settings-toggle,
-  .paytable-toggle {
+  .paytable-toggle,
+  .simulation-toggle {
     border-color: rgb(237 244 239 / 0.16);
     color: #edf4ef;
     background: #1a251d;
   }
 
   .settings-toggle:hover,
-  .paytable-toggle:hover {
+  .paytable-toggle:hover,
+  .simulation-toggle:hover {
     background: #233328;
   }
 
@@ -946,6 +1084,29 @@ select {
     border-color: rgb(237 244 239 / 0.22);
     color: #edf4ef;
     background: #1a251d;
+  }
+
+  .sim-back {
+    color: #8cd4a6;
+  }
+
+  .sim-progress-text,
+  .histogram__title {
+    color: #adbaaf;
+  }
+
+  .sim-summary dt,
+  .histogram__range,
+  .sim-empty {
+    color: #9fb0a4;
+  }
+
+  .sim-progress {
+    background: rgb(237 244 239 / 0.14);
+  }
+
+  .histogram__track {
+    background: rgb(237 244 239 / 0.12);
   }
 
   .pay-table-note {

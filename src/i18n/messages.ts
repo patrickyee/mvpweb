@@ -61,6 +61,22 @@ export interface LocaleMessages {
   reportFrequency: string;
   reportPayout: string;
   reportTotal: string;
+  simulate: string;
+  monteCarlo: string;
+  backToGame: string;
+  simulationsLabel: string;
+  runSimulation: string;
+  simulationRunning: string;
+  simulationEmpty: string;
+  metricLabel: string;
+  metricTotalWager: string;
+  metricHandsPlayed: string;
+  logScaleNote: string;
+  statRuns: string;
+  statP50: string;
+  statP90: string;
+  statP99: string;
+  statMax: string;
   strategy: string;
   priority: string;
   play: string;
@@ -124,6 +140,22 @@ export const messages: Record<Locale, LocaleMessages> = {
     reportFrequency: 'Frequency',
     reportPayout: 'Payout',
     reportTotal: 'Total',
+    simulate: 'Monte Carlo simulation',
+    monteCarlo: 'Monte Carlo',
+    backToGame: '← Back to game',
+    simulationsLabel: 'Simulations',
+    runSimulation: 'Run',
+    simulationRunning: 'Running… {done}%',
+    simulationEmpty: 'Set the parameters and run a simulation to see the distribution.',
+    metricLabel: 'Metric',
+    metricTotalWager: 'Total wager',
+    metricHandsPlayed: 'Hands played',
+    logScaleNote: 'log scale',
+    statRuns: 'Runs',
+    statP50: 'p50',
+    statP90: 'p90',
+    statP99: 'p99',
+    statMax: 'Max',
     strategy: 'Strategy',
     priority: '#',
     play: 'Play',
@@ -232,6 +264,22 @@ export const messages: Record<Locale, LocaleMessages> = {
     reportFrequency: '次數',
     reportPayout: '賠付',
     reportTotal: '總計',
+    simulate: '蒙特卡羅模擬',
+    monteCarlo: '蒙特卡羅',
+    backToGame: '← 返回遊戲',
+    simulationsLabel: '模擬次數',
+    runSimulation: '執行',
+    simulationRunning: '執行中… {done}%',
+    simulationEmpty: '設定參數並執行模擬以查看分佈。',
+    metricLabel: '指標',
+    metricTotalWager: '總下注',
+    metricHandsPlayed: '手數',
+    logScaleNote: '對數刻度',
+    statRuns: '次數',
+    statP50: 'p50',
+    statP90: 'p90',
+    statP99: 'p99',
+    statMax: '最大',
     strategy: '策略',
     priority: '#',
     play: '打法',
