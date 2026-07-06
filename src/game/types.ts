@@ -84,4 +84,10 @@ export interface GameState {
   readonly totalBets: number;
   readonly totalWinnings: number;
   readonly wagerPerCard: number;
+  readonly handStats: Readonly<Record<HandRank, HandStat>>;
+}
+
+export interface HandStat {
+  readonly count: number;
+  readonly payout: number;
 }

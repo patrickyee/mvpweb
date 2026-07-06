@@ -54,6 +54,13 @@ export interface LocaleMessages {
   payTablePayout: string;
   payTableAtWager: string;
   payTableWager: string;
+  reportTitle: string;
+  showReport: string;
+  closeReport: string;
+  reportHand: string;
+  reportFrequency: string;
+  reportPayout: string;
+  reportTotal: string;
   strategy: string;
   priority: string;
   play: string;
@@ -110,6 +117,13 @@ export const messages: Record<Locale, LocaleMessages> = {
     payTablePayout: 'Payout',
     payTableAtWager: 'At current wager',
     payTableWager: 'Wager per card {perCard} · per hand {perHand}',
+    reportTitle: 'Statistics',
+    showReport: 'Show statistics',
+    closeReport: 'Close statistics',
+    reportHand: 'Hand',
+    reportFrequency: 'Frequency',
+    reportPayout: 'Payout',
+    reportTotal: 'Total',
     strategy: 'Strategy',
     priority: '#',
     play: 'Play',
@@ -211,6 +225,13 @@ export const messages: Record<Locale, LocaleMessages> = {
     payTablePayout: '賠付',
     payTableAtWager: '目前下注賠付',
     payTableWager: '每張下注 {perCard}．每手 {perHand}',
+    reportTitle: '統計',
+    showReport: '顯示統計',
+    closeReport: '關閉統計',
+    reportHand: '牌型',
+    reportFrequency: '次數',
+    reportPayout: '賠付',
+    reportTotal: '總計',
     strategy: '策略',
     priority: '#',
     play: '打法',

@@ -1,6 +1,13 @@
 import { createDeck, dealCards, shuffleDeck } from './deck';
 import { evaluateHand, payoutForHand } from './handEvaluator';
-import type { Card, GameState } from './types';
+import { HAND_RANKS, type Card, type GameState, type HandStat, type HandRank } from './types';
+
+function emptyHandStats(): Record<HandRank, HandStat> {
+  return Object.fromEntries(HAND_RANKS.map((rank) => [rank, { count: 0, payout: 0 }])) as Record<
+    HandRank,
+    HandStat
+  >;
+}
 
 export const HAND_SIZE = 5;
 export const DEFAULT_STARTING_CREDITS = 100;
@@ -34,6 +41,7 @@ export function createInitialGameState(
     totalBets: 0,
     totalWinnings: 0,
     wagerPerCard,
+    handStats: emptyHandStats(),
   });
 }
 
@@ -122,6 +130,13 @@ export function draw(state: GameState): GameStateWithRtp {
     lastWin,
     lastWinningHandRank: lastWin > 0 ? handRank : null,
     totalWinnings: state.totalWinnings + lastWin,
+    handStats: {
+      ...state.handStats,
+      [handRank]: {
+        count: state.handStats[handRank].count + 1,
+        payout: state.handStats[handRank].payout + lastWin,
+      },
+    },
   });
 }
 

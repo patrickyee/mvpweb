@@ -284,6 +284,51 @@ select {
   width: 25%;
 }
 
+#report-panel td,
+#report-panel thead th:nth-child(n + 2),
+#report-panel tfoot th:nth-child(n + 2) {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#report-panel .strategy-table {
+  table-layout: fixed;
+}
+
+#report-panel .strategy-table :is(th, td):first-child {
+  width: 50%;
+}
+
+#report-panel .strategy-table :is(th, td):nth-child(n + 2) {
+  width: 25%;
+}
+
+#report-panel tfoot th,
+#report-panel tfoot td {
+  border-top: 2px solid rgb(23 32 24 / 0.24);
+  font-weight: 900;
+}
+
+.rtp-button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 2px;
+}
+
+.rtp-button:focus-visible {
+  outline: 3px solid #2f7bff;
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
 .stats-grid {
   display: flex;
   flex-wrap: wrap;
@@ -1023,6 +1068,11 @@ select {
 
   .strategy-table tbody th {
     color: #8cd4a6;
+  }
+
+  #report-panel tfoot th,
+  #report-panel tfoot td {
+    border-top-color: rgb(237 244 239 / 0.28);
   }
 }
 

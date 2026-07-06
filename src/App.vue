@@ -4,6 +4,7 @@ import GameControls from './components/GameControls.vue';
 import GameStats from './components/GameStats.vue';
 import PayTable from './components/PayTable.vue';
 import PlayingCard from './components/PlayingCard.vue';
+import StatsReport from './components/StatsReport.vue';
 import StrategyPanel from './components/StrategyPanel.vue';
 import {
   createInitialGameState,
@@ -30,6 +31,7 @@ const game = ref(dealNewHand(createInitialGameState(startingCredits.value, wager
 const isStrategyOpen = ref(false);
 const isSettingsOpen = ref(false);
 const isPayTableOpen = ref(false);
+const isReportOpen = ref(false);
 const hintMode = ref(false);
 const autoPlayConfirmOpen = ref(false);
 const { locale, messages, setLocale, t } = useI18n();
@@ -177,14 +179,33 @@ function closePayTable(): void {
   isPayTableOpen.value = false;
 }
 
+function openReport(): void {
+  isReportOpen.value = true;
+}
+
+function closeReport(): void {
+  isReportOpen.value = false;
+}
+
 // Changing a stake setting restarts the game.
 watch([wagerPerCard, startingCredits], restartGame);
+
+// Surface the report automatically the first time the game runs out of credits.
+const isGameOver = computed(
+  () => game.value.phase === 'evaluating' && !canContinue.value,
+);
+watch(isGameOver, (over) => {
+  if (over) {
+    isReportOpen.value = true;
+  }
+});
 
 function handleEscape(event: KeyboardEvent): void {
   if (event.key === 'Escape') {
     closeStrategy();
     closeSettings();
     closePayTable();
+    closeReport();
     cancelAutoPlay();
   }
 }
@@ -284,6 +305,7 @@ watchEffect(() => {
           :rtp="rtpLabel"
           :hands-played="game.handsPlayed"
           :total-wager="totalWagerLabel"
+          @report="openReport"
         />
 
         <section
@@ -397,6 +419,12 @@ watchEffect(() => {
       <Transition name="overlay-fade">
         <div v-if="isPayTableOpen" class="strategy-overlay" @click.self="closePayTable">
           <PayTable :wager-per-card="game.wagerPerCard" @close="closePayTable" />
+        </div>
+      </Transition>
+
+      <Transition name="overlay-fade">
+        <div v-if="isReportOpen" class="strategy-overlay" @click.self="closeReport">
+          <StatsReport :hand-stats="game.handStats" @close="closeReport" />
         </div>
       </Transition>
     </div>

@@ -339,11 +339,40 @@ are selected and vanish if the selection changes. The aria suffix was reworded f
 the reworked hint test in `tests/app.test.ts` (no dots on enable, dots on the exact
 optimal selection, dots gone when broken).
 
+## Phase 13: Reporting
+
+Goal: track per-hand-type statistics and surface them as a table at game end or on demand.
+
+- Tally, per hand rank, how often it occurred and the total payout it produced, across
+  the session; reset on new game / settings change.
+- Show a statistics popup with three columns — Hand, Frequency, Payout (50/25/25 width) —
+  listing the winning hands best-first plus a total row.
+- Open the report automatically when the game ends (credits run out) and whenever the
+  player clicks the RTP stat.
+- Localize all new labels (English and Traditional Chinese).
+
+Acceptance:
+
+- `draw()` accumulates a per-rank `handStats` (count + payout); `createInitialGameState`
+  seeds it to zero.
+- The report opens from the RTP stat and auto-opens at game end.
+- The table shows the winning hands with frequency and total payout, plus a total row.
+- Tests cover the tally accumulation and the report opening/rendering.
+
+Status: implemented. `GameState.handStats` (`src/game/types.ts`) is a per-rank
+`{count, payout}` record seeded by `emptyHandStats()` and accumulated in `draw()`
+(`src/game/gameState.ts`). `StatsReport.vue` renders the winning hands (best-first) plus
+a total row, reusing the strategy-table styling and 50/25/25 columns. `GameStats.vue`
+exposes the RTP value as a `.rtp-button` that emits `report`; `App.vue` opens the report
+on that event and auto-opens it via a `watch` on a game-over computed. i18n keys added in
+both locales. Tests: `handStats` accumulation in `tests/game.test.ts`; RTP-open + table
+rendering in `tests/app.test.ts`.
+
 ## Hand-Off For Next Coding Agent Session
 
 Current status:
 
-- All phases (1 through 12) are implemented.
+- All phases (1 through 13) are implemented.
 - The app is a Vue 3 + TypeScript + Vite SPA using npm and Vitest.
 - Core Jacks-or-Better game logic is implemented and covered by unit tests.
 - The playable game UI is wired to the game-state functions.
@@ -354,6 +383,7 @@ Current status:
 - Phase 8 added a deterministic strategy engine (`src/game/strategy.ts`) and an optional hint mode toggled from the header; hints mark recommended cards without changing hold state.
 - Phase 9 added an auto play loop (`src/composables/useAutoPlay.ts`) that plays strategy-optimal hands, hidden behind a 3-second long-press on Draw with a confirmation dialog, a 1x/10x/50x/100x speed slider shown while running, a New game reset for the out-of-credits case, and neutral accessibility labels for revealed cards.
 - Phase 10 replaced the CSS/HTML card rendering with public-domain SVG card faces (Vector-Playing-Cards) and moved held/win/loss cues to rings and a dim filter.
+- Phase 13 added per-hand-rank statistics (`handStats`) and a report popup opened from the RTP stat or automatically at game end.
 - Final automated release-readiness checks pass.
 
 Before starting new work, run:

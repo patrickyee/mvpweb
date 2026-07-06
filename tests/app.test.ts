@@ -626,3 +626,27 @@ describe('App settings and pay table', () => {
     expect(table.text()).toContain('375.00'); // scaled at default 0.25
   });
 });
+
+describe('App statistics report', () => {
+  beforeEach(() => {
+    useI18n().setLocale('en');
+  });
+
+  it('opens from the RTP stat and lists winning hands with a total row', async () => {
+    const wrapper = mount(App);
+    expect(wrapper.find('#report-panel').exists()).toBe(false);
+
+    await wrapper.find('.rtp-button').trigger('click');
+
+    const panel = wrapper.find('#report-panel');
+    expect(panel.exists()).toBe(true);
+    expect(panel.findAll('tbody tr')).toHaveLength(9); // winning hands only
+    expect(panel.find('tfoot').exists()).toBe(true); // total row
+    expect(panel.text()).toContain('Royal Flush');
+    expect(panel.text()).toContain('Jacks or Better');
+    expect(panel.text()).not.toContain('High Card');
+
+    await panel.find('.strategy-close').trigger('click');
+    expect(wrapper.find('#report-panel').exists()).toBe(false);
+  });
+});

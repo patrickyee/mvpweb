@@ -337,6 +337,45 @@ describe('game state', () => {
     expect(result.totalWinnings).toBe(0);
   });
 
+  it('tallies per-hand statistics across draws', () => {
+    const base = createInitialGameState();
+    expect(base.handStats.royalFlush).toEqual({ count: 0, payout: 0 });
+    expect(base.handStats.highCard).toEqual({ count: 0, payout: 0 });
+
+    const royal = [
+      c('10', 'hearts'),
+      c('jack', 'hearts'),
+      c('queen', 'hearts'),
+      c('king', 'hearts'),
+      c('ace', 'hearts'),
+    ];
+    const loser = [
+      c('2', 'hearts'),
+      c('5', 'diamonds'),
+      c('8', 'clubs'),
+      c('10', 'spades'),
+      c('king', 'hearts'),
+    ];
+
+    function playHeld(state: GameStateWithRtp, hand: Card[]): GameStateWithRtp {
+      let held: GameStateWithRtp = { ...state, deck: [], hand, phase: 'holding' };
+      for (const card of hand) {
+        held = toggleHold(held, card.id);
+      }
+      return draw(held);
+    }
+
+    const afterWin = playHeld(base, royal);
+    expect(afterWin.handStats.royalFlush).toEqual({ count: 1, payout: 375 });
+
+    const afterLoss = playHeld({ ...afterWin, phase: 'evaluating' as const }, loser);
+    expect(afterLoss.handStats.royalFlush).toEqual({ count: 1, payout: 375 });
+    expect(afterLoss.handStats.highCard).toEqual({ count: 1, payout: 0 });
+
+    const afterSecondWin = playHeld({ ...afterLoss, phase: 'evaluating' as const }, royal);
+    expect(afterSecondWin.handStats.royalFlush).toEqual({ count: 2, payout: 750 });
+  });
+
   it('starts the next hand after evaluation', () => {
     const state = {
       ...createInitialGameState(),

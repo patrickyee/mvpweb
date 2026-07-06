@@ -33,6 +33,7 @@ Game state:
 - `totalBets`: total credits wagered.
 - `totalWinnings`: total credits won.
 - `wagerPerCard`: the configurable per-card stake; the per-hand wager is `wagerPerCard * 5` and payouts scale by `wagerPerCard`.
+- `handStats`: per-hand-rank tally of frequency and total payout for the session.
 - `rtp`: derived percentage.
 
 Card state:
@@ -159,6 +160,13 @@ Rounded corners should stay modest, generally `8px` or less for panels and contr
 - Changing either setting restarts the game with fresh credits and stats.
 - A separate pay-table popup shows the base paytable and the payouts scaled by the
   current wager per card.
+
+## Reporting
+
+- A statistics popup shows a per-hand-rank tally — Hand, Frequency, Payout (with a
+  total row) — for the winning hands played this session.
+- It opens automatically when the game ends (credits run out) and whenever the player
+  clicks the RTP stat.
 
 ## Out Of Scope
 

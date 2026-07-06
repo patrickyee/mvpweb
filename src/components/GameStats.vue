@@ -8,6 +8,10 @@ defineProps<{
   totalWager: string;
 }>();
 
+defineEmits<{
+  report: [];
+}>();
+
 const { messages } = useI18n();
 </script>
 
@@ -25,7 +29,11 @@ const { messages } = useI18n();
         <span aria-hidden="true">📈</span>
         <span class="visually-hidden">{{ messages.rtp }}</span>
       </dt>
-      <dd>{{ rtp }}</dd>
+      <dd>
+        <button type="button" class="rtp-button" :aria-label="messages.showReport" @click="$emit('report')">
+          {{ rtp }}
+        </button>
+      </dd>
     </div>
     <div class="stat-push">
       <dt>
