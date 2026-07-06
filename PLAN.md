@@ -288,7 +288,18 @@ Acceptance:
 - Tests cover base vs scaled payouts, the parameterized initial state and `handWager`,
   restart-on-change, and pay-table rendering.
 
-Status: planned.
+Status: implemented. `PAYOUTS` (`src/game/handEvaluator.ts`) now holds base values and
+`payoutForHand(cards, wagerPerCard)` scales them. The game state carries `wagerPerCard`
+(`src/game/types.ts`); `gameState.ts` adds `DEFAULT_WAGER_PER_CARD`,
+`DEFAULT_STARTING_CREDITS`, `WAGER_PER_CARD_OPTIONS`, `STARTING_CREDIT_OPTIONS`, a
+`handWager(wagerPerCard) = wagerPerCard * HAND_SIZE` helper, and a parameterized
+`createInitialGameState(startingCredits, wagerPerCard)`; `dealNewHand`/`draw` and
+`useAutoPlay` read the wager from the state. `App.vue` holds `wagerPerCard`/
+`startingCredits` refs and restarts the game via a `watch`; a ⚙️ settings popup holds
+both dropdowns and a 📋 button opens `PayTable.vue` (base + at-current-wager columns).
+i18n keys added in both locales; `DESIGN.md` reconciled (state model, Settings section,
+Out Of Scope). Tests cover base/scaled payouts, `handWager`, parameterized state,
+restart-on-change, and pay-table rendering.
 
 ## Phase 12: Updated Hint Mode
 
@@ -317,7 +328,7 @@ Status: planned.
 
 Current status:
 
-- Phases 1 through 9 are implemented. Phase 10 is planned (blocked on card assets); Phases 11 (Settings) and 12 (Updated Hint Mode) are planned.
+- Phases 1 through 9 and Phase 11 (Settings) are implemented. Phase 10 is planned (blocked on card assets); Phase 12 (Updated Hint Mode) is planned.
 - The app is a Vue 3 + TypeScript + Vite SPA using npm and Vitest.
 - Core Jacks-or-Better game logic is implemented and covered by unit tests.
 - The playable game UI is wired to the game-state functions.
@@ -347,9 +358,6 @@ Do not create additional documentation files unless explicitly instructed.
 
 Next target:
 
-- Phase 11 (Settings) — implement the wager-per-card and starting-credits parameters,
-  restart-on-change, and the pay-table popup, taking the payout scaler out of the
-  constant.
 - Phase 12 (Updated Hint Mode) — show recommendation dots only when the player selects
   the correct holds.
 - Phase 10 (stats header and graphical card assets) remains blocked until a graphical

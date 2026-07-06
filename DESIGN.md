@@ -25,13 +25,14 @@ Game state:
 
 - `deck`: shuffled remaining cards.
 - `hand`: five visible cards.
-- `credits`: starts at `1000`.
+- `credits`: starts at the configured starting credits (default `100`).
 - `phase`: `holding` or `evaluating` for the web MVP. A future implementation may keep `betting` and `dealing` internally if useful for transitions.
 - `lastWin`: most recent payout amount.
 - `lastWinningHandRank`: winning rank name or `null`.
-- `handsPlayed`: completed hands.
+- `handsPlayed`: hands dealt (counted when the wager is taken).
 - `totalBets`: total credits wagered.
 - `totalWinnings`: total credits won.
+- `wagerPerCard`: the configurable per-card stake; the per-hand wager is `wagerPerCard * 5` and payouts scale by `wagerPerCard`.
 - `rtp`: derived percentage.
 
 Card state:
@@ -148,13 +149,19 @@ Rounded corners should stay modest, generally `8px` or less for panels and contr
 - Controls must be keyboard reachable.
 - Color is never the only held/win/loss indicator.
 
+## Settings
+
+- A settings popup lets the player choose the wager per card (`0.25`, `0.5`, `1.0`,
+  `2.0`, `5.0`) and the starting credits (`50`, `100`, `200`, `500`, `1000`).
+- Changing either setting restarts the game with fresh credits and stats.
+- A separate pay-table popup shows the base paytable and the payouts scaled by the
+  current wager per card.
+
 ## Out Of Scope
 
 - Real-money gambling.
-- Variable betting.
-- Accounts or saved profiles.
+- Accounts or saved profiles (settings are not persisted across reloads).
 - Leaderboards.
 - Multiplayer.
 - Backend services.
-- Automatic strategy hints.
 - Additional game variants.

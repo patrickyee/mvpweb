@@ -90,4 +90,5 @@ export interface GameState {
   readonly handsPlayed: number;
   readonly totalBets: number;
   readonly totalWinnings: number;
+  readonly wagerPerCard: number;
 }

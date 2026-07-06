@@ -1,6 +1,5 @@
 import { ref, type Ref } from 'vue';
-import { draw, nextHand, setHolds, type GameStateWithRtp } from '../game/gameState';
-import { WAGER } from '../game/handEvaluator';
+import { draw, handWager, nextHand, setHolds, type GameStateWithRtp } from '../game/gameState';
 import { recommendHolds } from '../game/strategy';
 
 export const AUTO_PLAY_INTERVAL_MS = 650;
@@ -44,7 +43,7 @@ export function useAutoPlay(game: Ref<GameStateWithRtp>, baseIntervalMs = AUTO_P
         game.value = setHolds(state, recommendHolds(state.hand));
         holdsApplied = true;
       }
-    } else if (state.credits < WAGER) {
+    } else if (state.credits < handWager(state.wagerPerCard)) {
       stop();
       return;
     } else {
@@ -61,7 +60,10 @@ export function useAutoPlay(game: Ref<GameStateWithRtp>, baseIntervalMs = AUTO_P
     }
 
     // Cannot begin a fresh loop with no credits to wager the next hand.
-    if (game.value.phase === 'evaluating' && game.value.credits < WAGER) {
+    if (
+      game.value.phase === 'evaluating' &&
+      game.value.credits < handWager(game.value.wagerPerCard)
+    ) {
       return;
     }
 

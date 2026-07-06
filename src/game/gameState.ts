@@ -1,9 +1,12 @@
 import { createDeck, dealCards, shuffleDeck } from './deck';
-import { evaluateHand, payoutForHand, WAGER } from './handEvaluator';
+import { evaluateHand, payoutForHand } from './handEvaluator';
 import type { Card, GameState } from './types';
 
-export const STARTING_CREDITS = 100;
 export const HAND_SIZE = 5;
+export const DEFAULT_STARTING_CREDITS = 100;
+export const DEFAULT_WAGER_PER_CARD = 0.25;
+export const WAGER_PER_CARD_OPTIONS = [0.25, 0.5, 1, 2, 5] as const;
+export const STARTING_CREDIT_OPTIONS = [50, 100, 200, 500, 1000] as const;
 
 export type RandomSource = () => number;
 
@@ -11,17 +14,26 @@ export interface GameStateWithRtp extends GameState {
   readonly rtp: number;
 }
 
-export function createInitialGameState(): GameStateWithRtp {
+// Credits wagered per hand: the per-card stake across all five cards.
+export function handWager(wagerPerCard: number): number {
+  return wagerPerCard * HAND_SIZE;
+}
+
+export function createInitialGameState(
+  startingCredits: number = DEFAULT_STARTING_CREDITS,
+  wagerPerCard: number = DEFAULT_WAGER_PER_CARD,
+): GameStateWithRtp {
   return withRtp({
     deck: [],
     hand: [],
-    credits: STARTING_CREDITS,
+    credits: startingCredits,
     phase: 'holding',
     lastWin: 0,
     lastWinningHandRank: null,
     handsPlayed: 0,
     totalBets: 0,
     totalWinnings: 0,
+    wagerPerCard,
   });
 }
 
@@ -29,7 +41,9 @@ export function dealNewHand(
   state: GameState,
   random: RandomSource = Math.random,
 ): GameStateWithRtp {
-  if (state.credits < WAGER) {
+  const wager = handWager(state.wagerPerCard);
+
+  if (state.credits < wager) {
     return withRtp(state);
   }
 
@@ -40,12 +54,12 @@ export function dealNewHand(
     ...state,
     deck: deal.deck,
     hand: deal.hand,
-    credits: state.credits - WAGER,
+    credits: state.credits - wager,
     phase: 'holding',
     lastWin: 0,
     lastWinningHandRank: null,
     handsPlayed: state.handsPlayed + 1,
-    totalBets: state.totalBets + WAGER,
+    totalBets: state.totalBets + wager,
   });
 }
 
@@ -97,7 +111,7 @@ export function draw(state: GameState): GameStateWithRtp {
   });
 
   const handRank = evaluateHand(hand);
-  const lastWin = payoutForHand(hand);
+  const lastWin = payoutForHand(hand, state.wagerPerCard);
 
   return withRtp({
     ...state,

@@ -1,19 +1,17 @@
 import { RANK_VALUES, type Card, type HandRank } from './types';
 
-const FACTOR = 0.25;
-export const WAGER = 5 * FACTOR;
-
+// Base (unscaled) paytable. Actual credits are these values times the wager per card.
 export const PAYOUTS: Record<HandRank, number> = {
-  royalFlush: 1500 * FACTOR,
-  straightFlush: 250 * FACTOR,
-  fourOfAKind: 125 * FACTOR,
-  fullHouse: 30 * FACTOR,
-  flush: 25 * FACTOR,
-  straight: 20 * FACTOR,
-  threeOfAKind: 15 * FACTOR,
-  twoPair: 10 * FACTOR,
-  jacksOrBetter: 5 * FACTOR,
-  highCard: 0 * FACTOR,
+  royalFlush: 1500,
+  straightFlush: 250,
+  fourOfAKind: 125,
+  fullHouse: 30,
+  flush: 25,
+  straight: 20,
+  threeOfAKind: 15,
+  twoPair: 10,
+  jacksOrBetter: 5,
+  highCard: 0,
 };
 
 export function evaluateHand(cards: readonly Card[]): HandRank {
@@ -67,8 +65,8 @@ export function evaluateHand(cards: readonly Card[]): HandRank {
   return 'highCard';
 }
 
-export function payoutForHand(cards: readonly Card[], bet = 1): number {
-  return PAYOUTS[evaluateHand(cards)] * bet;
+export function payoutForHand(cards: readonly Card[], wagerPerCard = 1): number {
+  return PAYOUTS[evaluateHand(cards)] * wagerPerCard;
 }
 
 const WHOLE_HAND_RANKS = new Set<HandRank>([

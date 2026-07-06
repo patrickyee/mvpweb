@@ -202,6 +202,88 @@ select {
   outline-offset: 3px;
 }
 
+.settings-toggle,
+.paytable-toggle {
+  width: 34px;
+  height: 34px;
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid rgb(23 32 24 / 0.18);
+  border-radius: 50%;
+  color: #17351f;
+  background: #ffffff;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.settings-toggle:hover,
+.paytable-toggle:hover {
+  background: #eef7ef;
+}
+
+.settings-toggle:focus-visible,
+.paytable-toggle:focus-visible {
+  outline: 3px solid #2f7bff;
+  outline-offset: 3px;
+}
+
+.settings-panel {
+  width: min(360px, 100%);
+}
+
+.settings-field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.settings-field label {
+  font-weight: 700;
+}
+
+.settings-select {
+  min-width: 120px;
+  min-height: 36px;
+  padding: 0 10px;
+  border: 1px solid rgb(23 32 24 / 0.24);
+  border-radius: 8px;
+  color: #17351f;
+  background: #ffffff;
+  cursor: pointer;
+}
+
+.settings-select:focus-visible {
+  outline: 3px solid #2f7bff;
+  outline-offset: 2px;
+}
+
+.pay-table-note {
+  margin: 0 0 12px;
+  color: #5f6c62;
+  font-size: 0.85rem;
+}
+
+#pay-table-panel td,
+#pay-table-panel thead th:nth-child(n + 2) {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#pay-table-panel .strategy-table {
+  table-layout: fixed;
+}
+
+#pay-table-panel .strategy-table :is(th, td):first-child {
+  width: 50%;
+}
+
+#pay-table-panel .strategy-table :is(th, td):nth-child(n + 2) {
+  width: 25%;
+}
+
 .stats-grid {
   display: flex;
   flex-wrap: wrap;
@@ -684,7 +766,9 @@ select {
   }
 
   .help-toggle,
-  .hint-toggle {
+  .hint-toggle,
+  .settings-toggle,
+  .paytable-toggle {
     width: 30px;
     height: 30px;
     font-size: 0.95rem;
@@ -835,6 +919,28 @@ select {
   .hint-toggle--active {
     border-color: #6ea8ff;
     background: #1c3357;
+  }
+
+  .settings-toggle,
+  .paytable-toggle {
+    border-color: rgb(237 244 239 / 0.16);
+    color: #edf4ef;
+    background: #1a251d;
+  }
+
+  .settings-toggle:hover,
+  .paytable-toggle:hover {
+    background: #233328;
+  }
+
+  .settings-select {
+    border-color: rgb(237 244 239 / 0.22);
+    color: #edf4ef;
+    background: #1a251d;
+  }
+
+  .pay-table-note {
+    color: #9fb0a4;
   }
 
   .hint-dot {

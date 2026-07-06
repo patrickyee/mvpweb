@@ -4,14 +4,16 @@ import {
   calculateRtp,
   createInitialGameState,
   dealNewHand,
+  DEFAULT_STARTING_CREDITS,
+  DEFAULT_WAGER_PER_CARD,
   draw,
+  handWager,
   nextHand,
   setHolds,
-  STARTING_CREDITS,
   toggleHold,
 } from '../src/game/gameState';
 import type { GameStateWithRtp } from '../src/game/gameState';
-import { evaluateHand, payoutForHand, WAGER, winningCardIds } from '../src/game/handEvaluator';
+import { evaluateHand, payoutForHand, winningCardIds } from '../src/game/handEvaluator';
 import type { Card, Rank, Suit } from '../src/game/types';
 
 function c(rank: Rank, suit: Suit): Card {
@@ -120,18 +122,30 @@ describe('hand evaluation', () => {
 
 describe('payouts', () => {
   it.each([
-    [375, [c('10', 'hearts'), c('jack', 'hearts'), c('queen', 'hearts'), c('king', 'hearts'), c('ace', 'hearts')]],
-    [62.5, [c('5', 'spades'), c('6', 'spades'), c('7', 'spades'), c('8', 'spades'), c('9', 'spades')]],
-    [31.25, [c('9', 'hearts'), c('9', 'diamonds'), c('9', 'clubs'), c('9', 'spades'), c('king', 'hearts')]],
-    [7.5, [c('queen', 'hearts'), c('queen', 'diamonds'), c('queen', 'clubs'), c('4', 'spades'), c('4', 'hearts')]],
-    [6.25, [c('2', 'clubs'), c('5', 'clubs'), c('8', 'clubs'), c('jack', 'clubs'), c('king', 'clubs')]],
-    [5, [c('6', 'hearts'), c('7', 'diamonds'), c('8', 'clubs'), c('9', 'spades'), c('10', 'hearts')]],
-    [3.75, [c('3', 'hearts'), c('3', 'diamonds'), c('3', 'clubs'), c('8', 'spades'), c('king', 'hearts')]],
-    [2.5, [c('5', 'hearts'), c('5', 'diamonds'), c('jack', 'clubs'), c('jack', 'spades'), c('2', 'hearts')]],
-    [1.25, [c('jack', 'hearts'), c('jack', 'diamonds'), c('3', 'clubs'), c('8', 'spades'), c('king', 'hearts')]],
+    [1500, [c('10', 'hearts'), c('jack', 'hearts'), c('queen', 'hearts'), c('king', 'hearts'), c('ace', 'hearts')]],
+    [250, [c('5', 'spades'), c('6', 'spades'), c('7', 'spades'), c('8', 'spades'), c('9', 'spades')]],
+    [125, [c('9', 'hearts'), c('9', 'diamonds'), c('9', 'clubs'), c('9', 'spades'), c('king', 'hearts')]],
+    [30, [c('queen', 'hearts'), c('queen', 'diamonds'), c('queen', 'clubs'), c('4', 'spades'), c('4', 'hearts')]],
+    [25, [c('2', 'clubs'), c('5', 'clubs'), c('8', 'clubs'), c('jack', 'clubs'), c('king', 'clubs')]],
+    [20, [c('6', 'hearts'), c('7', 'diamonds'), c('8', 'clubs'), c('9', 'spades'), c('10', 'hearts')]],
+    [15, [c('3', 'hearts'), c('3', 'diamonds'), c('3', 'clubs'), c('8', 'spades'), c('king', 'hearts')]],
+    [10, [c('5', 'hearts'), c('5', 'diamonds'), c('jack', 'clubs'), c('jack', 'spades'), c('2', 'hearts')]],
+    [5, [c('jack', 'hearts'), c('jack', 'diamonds'), c('3', 'clubs'), c('8', 'spades'), c('king', 'hearts')]],
     [0, [c('2', 'hearts'), c('5', 'diamonds'), c('8', 'clubs'), c('10', 'spades'), c('king', 'hearts')]],
-  ])('returns payout %d', (expected, hand) => {
+  ])('returns base payout %d', (expected, hand) => {
     expect(payoutForHand(hand)).toBe(expected);
+  });
+
+  it('scales the payout by the wager per card', () => {
+    const royal = [
+      c('10', 'hearts'),
+      c('jack', 'hearts'),
+      c('queen', 'hearts'),
+      c('king', 'hearts'),
+      c('ace', 'hearts'),
+    ];
+    expect(payoutForHand(royal, 0.25)).toBe(375);
+    expect(payoutForHand(royal, 2)).toBe(3000);
   });
 });
 
@@ -202,14 +216,47 @@ describe('setHolds', () => {
   });
 });
 
+describe('wager configuration', () => {
+  it('computes the per-hand wager from the per-card stake', () => {
+    expect(handWager(0.25)).toBe(1.25);
+    expect(handWager(1)).toBe(5);
+    expect(handWager(5)).toBe(25);
+  });
+
+  it('seeds starting credits and wager per card', () => {
+    const state = createInitialGameState(500, 2);
+    expect(state.credits).toBe(500);
+    expect(state.wagerPerCard).toBe(2);
+  });
+
+  it('deducts and pays according to the configured wager per card', () => {
+    const dealt = dealNewHand(createInitialGameState(200, 1), fixedRandom);
+    expect(dealt.credits).toBe(195);
+    expect(dealt.totalBets).toBe(5);
+
+    const royal = [
+      c('10', 'hearts'),
+      c('jack', 'hearts'),
+      c('queen', 'hearts'),
+      c('king', 'hearts'),
+      c('ace', 'hearts'),
+    ];
+    let held: GameStateWithRtp = { ...createInitialGameState(200, 1), deck: [], hand: royal };
+    for (const card of royal) {
+      held = toggleHold(held, card.id);
+    }
+    expect(draw(held).lastWin).toBe(1500);
+  });
+});
+
 describe('game state', () => {
   it('starts a new hand by charging the wager and recording the bet', () => {
     const state = dealNewHand(createInitialGameState(), fixedRandom);
 
     expect(state.hand).toHaveLength(5);
     expect(state.deck).toHaveLength(47);
-    expect(state.credits).toBe(STARTING_CREDITS - WAGER);
-    expect(state.totalBets).toBe(WAGER);
+    expect(state.credits).toBe(DEFAULT_STARTING_CREDITS - handWager(DEFAULT_WAGER_PER_CARD));
+    expect(state.totalBets).toBe(handWager(DEFAULT_WAGER_PER_CARD));
     expect(state.handsPlayed).toBe(1);
     expect(state.phase).toBe('holding');
   });
@@ -307,8 +354,8 @@ describe('game state', () => {
     expect(result.hand).toHaveLength(5);
     expect(result.lastWin).toBe(0);
     expect(result.lastWinningHandRank).toBeNull();
-    expect(result.credits).toBe(1001 - WAGER);
-    expect(result.totalBets).toBe(1 + WAGER);
+    expect(result.credits).toBe(1001 - handWager(DEFAULT_WAGER_PER_CARD));
+    expect(result.totalBets).toBe(1 + handWager(DEFAULT_WAGER_PER_CARD));
   });
 
   it('calculates RTP with and without bets', () => {

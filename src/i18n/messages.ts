@@ -44,6 +44,16 @@ export interface LocaleMessages {
   autoPlaySpeedLabel: string;
   cancel: string;
   newGame: string;
+  settings: string;
+  closeSettings: string;
+  wagerPerCardLabel: string;
+  startingCreditsLabel: string;
+  payTable: string;
+  closePayTable: string;
+  payTableHand: string;
+  payTablePayout: string;
+  payTableAtWager: string;
+  payTableWager: string;
   strategy: string;
   priority: string;
   play: string;
@@ -90,6 +100,16 @@ export const messages: Record<Locale, LocaleMessages> = {
     autoPlaySpeedLabel: 'Auto play speed',
     cancel: 'Cancel',
     newGame: 'New game',
+    settings: 'Settings',
+    closeSettings: 'Close settings',
+    wagerPerCardLabel: 'Wager per card',
+    startingCreditsLabel: 'Starting credits',
+    payTable: 'Pay table',
+    closePayTable: 'Close pay table',
+    payTableHand: 'Hand',
+    payTablePayout: 'Payout',
+    payTableAtWager: 'At current wager',
+    payTableWager: 'Wager per card {perCard} · per hand {perHand}',
     strategy: 'Strategy',
     priority: '#',
     play: 'Play',
@@ -181,6 +201,16 @@ export const messages: Record<Locale, LocaleMessages> = {
     autoPlaySpeedLabel: '自動模式速度',
     cancel: '取消',
     newGame: '重新開始',
+    settings: '設定',
+    closeSettings: '關閉設定',
+    wagerPerCardLabel: '每張下注',
+    startingCreditsLabel: '起始點數',
+    payTable: '賠付表',
+    closePayTable: '關閉賠付表',
+    payTableHand: '牌型',
+    payTablePayout: '賠付',
+    payTableAtWager: '目前下注賠付',
+    payTableWager: '每張下注 {perCard}．每手 {perHand}',
     strategy: '策略',
     priority: '#',
     play: '打法',

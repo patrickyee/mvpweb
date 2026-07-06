@@ -1,18 +1,35 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, watchEffect } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, watch, watchEffect } from 'vue';
 import GameControls from './components/GameControls.vue';
 import GameStats from './components/GameStats.vue';
+import PayTable from './components/PayTable.vue';
 import PlayingCard from './components/PlayingCard.vue';
 import StrategyPanel from './components/StrategyPanel.vue';
-import { createInitialGameState, dealNewHand, draw, nextHand, toggleHold } from './game/gameState';
-import { winningCardIds, WAGER } from './game/handEvaluator';
+import {
+  createInitialGameState,
+  dealNewHand,
+  DEFAULT_STARTING_CREDITS,
+  DEFAULT_WAGER_PER_CARD,
+  draw,
+  handWager,
+  nextHand,
+  STARTING_CREDIT_OPTIONS,
+  toggleHold,
+  WAGER_PER_CARD_OPTIONS,
+} from './game/gameState';
+import { winningCardIds } from './game/handEvaluator';
 import { recommendHolds } from './game/strategy';
 import { useAutoPlay, type AutoPlaySpeed } from './composables/useAutoPlay';
 import { type Locale } from './i18n/messages';
 import { useI18n } from './i18n/useI18n';
 
-const game = ref(dealNewHand(createInitialGameState()));
+const wagerPerCard = ref<number>(DEFAULT_WAGER_PER_CARD);
+const startingCredits = ref<number>(DEFAULT_STARTING_CREDITS);
+
+const game = ref(dealNewHand(createInitialGameState(startingCredits.value, wagerPerCard.value)));
 const isStrategyOpen = ref(false);
+const isSettingsOpen = ref(false);
+const isPayTableOpen = ref(false);
 const hintMode = ref(false);
 const autoPlayConfirmOpen = ref(false);
 const { locale, messages, setLocale, t } = useI18n();
@@ -26,7 +43,9 @@ const {
 
 const creditsLabel = computed(() => game.value.credits.toFixed(2));
 const rtpLabel = computed(() => `${game.value.rtp.toFixed(2)}%`);
-const totalWagerLabel = computed(() => (WAGER * game.value.handsPlayed).toFixed(2));
+const totalWagerLabel = computed(() =>
+  (handWager(game.value.wagerPerCard) * game.value.handsPlayed).toFixed(2),
+);
 const isHolding = computed(() => game.value.phase === 'holding');
 const recommendedIds = computed(
   () =>
@@ -42,7 +61,7 @@ const winningIds = computed(
         : [],
     ),
 );
-const canContinue = computed(() => game.value.credits >= WAGER);
+const canContinue = computed(() => game.value.credits >= handWager(game.value.wagerPerCard));
 
 const resultMessage = computed(() => {
   if (game.value.phase === 'holding') {
@@ -87,9 +106,13 @@ function handleNextHand(): void {
   game.value = nextHand(game.value);
 }
 
-function handleNewGame(): void {
+function restartGame(): void {
   stopAutoPlay();
-  game.value = dealNewHand(createInitialGameState());
+  game.value = dealNewHand(createInitialGameState(startingCredits.value, wagerPerCard.value));
+}
+
+function handleNewGame(): void {
+  restartGame();
 }
 
 function requestAutoPlay(): void {
@@ -119,13 +142,34 @@ function toggleHint(): void {
   hintMode.value = !hintMode.value;
 }
 
+function toggleSettings(): void {
+  isSettingsOpen.value = !isSettingsOpen.value;
+}
+
+function togglePayTable(): void {
+  isPayTableOpen.value = !isPayTableOpen.value;
+}
+
 function closeStrategy(): void {
   isStrategyOpen.value = false;
 }
 
+function closeSettings(): void {
+  isSettingsOpen.value = false;
+}
+
+function closePayTable(): void {
+  isPayTableOpen.value = false;
+}
+
+// Changing a stake setting restarts the game.
+watch([wagerPerCard, startingCredits], restartGame);
+
 function handleEscape(event: KeyboardEvent): void {
   if (event.key === 'Escape') {
     closeStrategy();
+    closeSettings();
+    closePayTable();
     cancelAutoPlay();
   }
 }
@@ -186,6 +230,26 @@ watchEffect(() => {
             @click="toggleHint"
           >
             <span aria-hidden="true">💡</span>
+          </button>
+
+          <button
+            class="settings-toggle"
+            type="button"
+            :aria-expanded="isSettingsOpen"
+            :aria-label="messages.settings"
+            @click="toggleSettings"
+          >
+            <span aria-hidden="true">⚙️</span>
+          </button>
+
+          <button
+            class="paytable-toggle"
+            type="button"
+            :aria-expanded="isPayTableOpen"
+            :aria-label="messages.payTable"
+            @click="togglePayTable"
+          >
+            <span aria-hidden="true">📋</span>
           </button>
 
           <button
@@ -267,6 +331,53 @@ watchEffect(() => {
               </button>
             </div>
           </div>
+        </div>
+      </Transition>
+
+      <Transition name="overlay-fade">
+        <div v-if="isSettingsOpen" class="strategy-overlay" @click.self="closeSettings">
+          <section
+            class="strategy-panel settings-panel"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="settings-title"
+          >
+            <header class="strategy-header">
+              <h2 id="settings-title">{{ messages.settings }}</h2>
+              <button
+                class="strategy-close"
+                type="button"
+                :aria-label="messages.closeSettings"
+                @click="closeSettings"
+              >
+                &times;
+              </button>
+            </header>
+
+            <div class="settings-field">
+              <label for="wager-per-card">{{ messages.wagerPerCardLabel }}</label>
+              <select id="wager-per-card" class="settings-select" v-model.number="wagerPerCard">
+                <option v-for="option in WAGER_PER_CARD_OPTIONS" :key="option" :value="option">
+                  {{ option }}
+                </option>
+              </select>
+            </div>
+
+            <div class="settings-field">
+              <label for="starting-credits">{{ messages.startingCreditsLabel }}</label>
+              <select id="starting-credits" class="settings-select" v-model.number="startingCredits">
+                <option v-for="option in STARTING_CREDIT_OPTIONS" :key="option" :value="option">
+                  {{ option }}
+                </option>
+              </select>
+            </div>
+          </section>
+        </div>
+      </Transition>
+
+      <Transition name="overlay-fade">
+        <div v-if="isPayTableOpen" class="strategy-overlay" @click.self="closePayTable">
+          <PayTable :wager-per-card="game.wagerPerCard" @close="closePayTable" />
         </div>
       </Transition>
     </div>

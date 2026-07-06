@@ -544,3 +544,45 @@ describe('App auto play', () => {
     expect(wrapper.find('.auto-speed__value').text()).toBe('100x');
   });
 });
+
+describe('App settings and pay table', () => {
+  beforeEach(() => {
+    useI18n().setLocale('en');
+  });
+
+  it('restarts the game with new stakes when the wager per card changes', async () => {
+    const wrapper = mount(App);
+
+    await wrapper.find('.settings-toggle').trigger('click');
+    await wrapper.find('#wager-per-card').setValue('1'); // per card 1 -> hand wager 5
+    await nextTick();
+
+    const values = wrapper.findAll('.stats-grid dd');
+    expect(values[0].text()).toBe('95.00'); // 100 starting - 5 wager
+    expect(values[2].text()).toBe('1'); // hands reset to the fresh deal
+    expect(values[3].text()).toBe('5.00'); // total wager
+  });
+
+  it('restarts with the chosen starting credits', async () => {
+    const wrapper = mount(App);
+
+    await wrapper.find('.settings-toggle').trigger('click');
+    await wrapper.find('#starting-credits').setValue('500');
+    await nextTick();
+
+    // 500 starting - 1.25 default wager
+    expect(wrapper.findAll('.stats-grid dd')[0].text()).toBe('498.75');
+  });
+
+  it('shows the pay table with base and at-current-wager payouts', async () => {
+    const wrapper = mount(App);
+
+    await wrapper.find('.paytable-toggle').trigger('click');
+    const table = wrapper.find('#pay-table-panel');
+
+    expect(table.exists()).toBe(true);
+    expect(table.text()).toContain('Royal Flush');
+    expect(table.text()).toContain('1500'); // base
+    expect(table.text()).toContain('375.00'); // scaled at default 0.25
+  });
+});
