@@ -80,13 +80,13 @@ describe('recommendHolds strategy priorities', () => {
     expect(holds(hand)).toEqual(idsOf(pair));
   });
 
-  it('priority 7: holds three to a royal flush', () => {
+  it('priority 8: holds three to a royal flush', () => {
     const draw = [c('10', 'hearts'), c('queen', 'hearts'), c('ace', 'hearts')];
     const hand = [...draw, c('3', 'clubs'), c('7', 'spades')];
     expect(holds(hand)).toEqual(idsOf(draw));
   });
 
-  it('priority 8: holds four to a flush', () => {
+  it('priority 7: holds four to a flush', () => {
     const draw = [c('2', 'clubs'), c('5', 'clubs'), c('8', 'clubs'), c('jack', 'clubs')];
     const hand = [...draw, c('king', 'hearts')];
     expect(holds(hand)).toEqual(idsOf(draw));
@@ -107,13 +107,13 @@ describe('recommendHolds strategy priorities', () => {
     expect(holds(inside)).toEqual([c('king', 'hearts').id]);
   });
 
-  it('priority 11: holds two suited high cards', () => {
+  it('priority 12: holds two suited high cards', () => {
     const draw = [c('jack', 'hearts'), c('queen', 'hearts')];
     const hand = [...draw, c('3', 'clubs'), c('7', 'spades'), c('9', 'diamonds')];
     expect(holds(hand)).toEqual(idsOf(draw));
   });
 
-  it('priority 12: holds three to a straight flush', () => {
+  it('priority 11: holds three to a straight flush', () => {
     const draw = [c('4', 'spades'), c('5', 'spades'), c('6', 'spades')];
     const hand = [...draw, c('jack', 'hearts'), c('king', 'diamonds')];
     expect(holds(hand)).toEqual(idsOf(draw));

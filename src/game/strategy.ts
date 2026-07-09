@@ -128,7 +128,7 @@ function highPair(cards: readonly Card[]): Card[] | null {
   return null;
 }
 
-// Priority 7: three to a royal flush.
+// Priority 8: three to a royal flush.
 function threeToRoyalFlush(cards: readonly Card[]): Card[] | null {
   for (const group of groupBySuit(cards).values()) {
     const royal = group.filter((card) => ROYAL_VALUES.has(val(card)));
@@ -139,7 +139,7 @@ function threeToRoyalFlush(cards: readonly Card[]): Card[] | null {
   return null;
 }
 
-// Priority 8: four to a flush.
+// Priority 7: four to a flush.
 function fourToFlush(cards: readonly Card[]): Card[] | null {
   for (const group of groupBySuit(cards).values()) {
     if (group.length === 4) {
@@ -170,7 +170,7 @@ function fourToOutsideStraight(cards: readonly Card[]): Card[] | null {
   return null;
 }
 
-// Priority 11: two suited high cards (prefer the lowest such pair).
+// Priority 12: two suited high cards (prefer the lowest such pair).
 function twoSuitedHighCards(cards: readonly Card[]): Card[] | null {
   let best: Card[] | null = null;
   for (const group of groupBySuit(cards).values()) {
@@ -182,7 +182,7 @@ function twoSuitedHighCards(cards: readonly Card[]): Card[] | null {
   return best;
 }
 
-// Priority 12: three to a straight flush.
+// Priority 11: three to a straight flush.
 function threeToStraightFlush(cards: readonly Card[]): Card[] | null {
   for (const group of groupBySuit(cards).values()) {
     if (group.length === 3 && straightsContaining(group.map(val)) >= 1) {
@@ -229,12 +229,12 @@ const STRATEGY: ReadonlyArray<(cards: readonly Card[]) => Card[] | null> = [
   fourToStraightFlush,
   twoPair,
   highPair,
-  threeToRoyalFlush,
   fourToFlush,
+  threeToRoyalFlush,
   lowPair,
   fourToOutsideStraight,
-  twoSuitedHighCards,
   threeToStraightFlush,
+  twoSuitedHighCards,
   twoHighCards,
   suitedTenAndHighCard,
   oneHighCard,

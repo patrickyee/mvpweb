@@ -81,12 +81,12 @@ Include a collapsible strategy panel with the source MVP guidance:
 4. 4 to a straight flush
 5. Two pair
 6. High pair
-7. 3 to a royal flush
-8. 4 to a flush
+7. 4 to a flush
+8. 3 to a royal flush
 9. Low pair
 10. 4 to an outside straight
-11. 2 suited high cards
-12. 3 to a straight flush
+11. 3 to a straight flush
+12. 2 suited high cards
 13. 2 unsuited high cards, choosing the lowest two when more than two are available
 14. Suited 10/J, 10/Q, or 10/K
 15. One high card
