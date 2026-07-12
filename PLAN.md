@@ -407,11 +407,24 @@ The route intentionally has no visible navigation from the game UI. Tests:
 `tests/monteCarlo.test.ts` (seeded engine + histogram) and routing/form tests in
 `tests/app.test.ts` (game tests now mount `GameView` with a memory router).
 
+## Phase 15: Persistent Game State And Reset
+
+Goal: preserve the player's game across browser sessions while providing an explicit
+way to start over.
+
+- Save credits, statistics, settings, and the in-progress hand to local storage.
+- Validate stored data and fall back to a fresh game when it is missing or invalid.
+- Add an always-available, localized Reset everything button.
+
+Status: implemented in `src/game/gameStorage.ts` and `src/views/GameView.vue`. The
+versioned snapshot restores the exact current hand without placing another wager.
+Storage failures do not interrupt gameplay. Tests cover restoration and reset.
+
 ## Hand-Off For Next Coding Agent Session
 
 Current status:
 
-- All phases (1 through 14) are implemented.
+- All phases (1 through 15) are implemented.
 - The app is a Vue 3 + TypeScript + Vite SPA using npm and Vitest.
 - Core Jacks-or-Better game logic is implemented and covered by unit tests.
 - The playable game UI is wired to the game-state functions.
@@ -424,6 +437,8 @@ Current status:
 - Phase 10 replaced the CSS/HTML card rendering with public-domain SVG card faces (Vector-Playing-Cards) and moved held/win/loss cues to rings and a dim filter.
 - Phase 13 added per-hand-rank statistics (`handStats`) and a report popup opened from the RTP stat or automatically at game end.
 - Phase 14 added client-side routing (`vue-router`), a shared `App.vue` shell with `src/views/GameView.vue`, and a Monte Carlo simulation page (`src/views/SimulationView.vue`) driven by a Web Worker (`src/sim/`), with a Pages SPA fallback (`public/_redirects`).
+- Phase 15 added versioned local-storage persistence for the full game snapshot and an
+  always-available Reset everything control.
 - Final automated release-readiness checks pass.
 
 Before starting new work, run:
@@ -443,7 +458,7 @@ Do not create additional documentation files unless explicitly instructed.
 
 Next target:
 
-- All planned phases (1–14) are implemented. Possible follow-ups: optimize the card SVGs
+- All planned phases (1–15) are implemented. Possible follow-ups: optimize the card SVGs
   (the hand-drawn court cards are ~0.5–1.1 MB each) with SVGO to cut asset weight; add a
   brief attribution note for the public-domain card art; and consider seed control /
   CSV export for the Monte Carlo page.

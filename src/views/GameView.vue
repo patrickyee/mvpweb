@@ -20,14 +20,18 @@ import {
   WAGER_PER_CARD_OPTIONS,
 } from '../game/gameState';
 import { winningCardIds } from '../game/handEvaluator';
+import { clearSavedGame, loadGame, saveGame } from '../game/gameStorage';
 import { recommendHolds } from '../game/strategy';
 import { useAutoPlay, type AutoPlaySpeed } from '../composables/useAutoPlay';
 import { useI18n } from '../i18n/useI18n';
 
-const wagerPerCard = ref<number>(DEFAULT_WAGER_PER_CARD);
-const startingCredits = ref<number>(DEFAULT_STARTING_CREDITS);
+const savedGame = loadGame();
+const wagerPerCard = ref<number>(savedGame?.game.wagerPerCard ?? DEFAULT_WAGER_PER_CARD);
+const startingCredits = ref<number>(savedGame?.startingCredits ?? DEFAULT_STARTING_CREDITS);
 
-const game = ref(dealNewHand(createInitialGameState(startingCredits.value, wagerPerCard.value)));
+const game = ref(
+  savedGame?.game ?? dealNewHand(createInitialGameState(startingCredits.value, wagerPerCard.value)),
+);
 const isStrategyOpen = ref(false);
 const isSettingsOpen = ref(false);
 const isPayTableOpen = ref(false);
@@ -129,6 +133,7 @@ function restartGame(): void {
 }
 
 function handleNewGame(): void {
+  clearSavedGame();
   restartGame();
 }
 
@@ -189,6 +194,10 @@ function closeReport(): void {
 
 // Changing a stake setting restarts the game.
 watch([wagerPerCard, startingCredits], restartGame);
+watch([game, startingCredits], () => saveGame(game.value, startingCredits.value), {
+  deep: true,
+  immediate: true,
+});
 
 // Surface the report automatically the first time the game runs out of credits.
 const isGameOver = computed(() => game.value.phase === 'evaluating' && !canContinue.value);
@@ -227,6 +236,15 @@ onBeforeUnmount(() => {
       </div>
 
       <LanguageToggle />
+
+      <button
+        class="reset-action"
+        type="button"
+        :aria-label="messages.resetEverything"
+        @click="handleNewGame"
+      >
+        <span aria-hidden="true">🔄</span>
+      </button>
 
       <button
         class="hint-toggle"

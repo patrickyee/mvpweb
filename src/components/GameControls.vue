@@ -30,8 +30,7 @@ function handleSpeedInput(event: Event): void {
   emit('setSpeed', AUTO_PLAY_SPEEDS[index] ?? AUTO_PLAY_SPEEDS[0]);
 }
 
-// New game acts as the reset once credits run out; otherwise the primary action is
-// draw (holding) or next hand (evaluating).
+// New game takes over the primary action once credits run out.
 const showNewGame = computed(() => props.phase === 'evaluating' && !props.canContinue);
 
 // Auto play is a hidden mode: holding the Draw button for this long requests it.

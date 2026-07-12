@@ -28,6 +28,18 @@ function mountGame() {
   return mount(GameView, { global: { plugins: [makeRouter()] } });
 }
 
+beforeEach(() => {
+  const values = new Map<string, string>();
+  vi.stubGlobal('localStorage', {
+    get length() { return values.size; },
+    clear: () => values.clear(),
+    getItem: (key: string) => values.get(key) ?? null,
+    key: (index: number) => [...values.keys()][index] ?? null,
+    removeItem: (key: string) => values.delete(key),
+    setItem: (key: string, value: string) => values.set(key, String(value)),
+  } satisfies Storage);
+});
+
 describe('App playable UI', () => {
   beforeEach(() => {
     useI18n().setLocale('en');
@@ -556,7 +568,7 @@ describe('App auto play', () => {
     expect(wrapper.find('.primary-action--stop').exists()).toBe(false);
 
     // Cancelling closes the dialog without starting.
-    await wrapper.find('.secondary-action').trigger('click');
+    await wrapper.find('.confirm-dialog .secondary-action').trigger('click');
     expect(wrapper.find('.confirm-dialog').exists()).toBe(false);
     expect(wrapper.find('.primary-action--stop').exists()).toBe(false);
   });
@@ -629,6 +641,35 @@ describe('App settings and pay table', () => {
 
     // 500 starting - 1.25 default wager
     expect(wrapper.findAll('.stats-grid dd')[0].text()).toBe('498.75');
+  });
+
+  it('restores credits, statistics, and the current hand across sessions', async () => {
+    const first = mountGame();
+    await first.find('button.primary-action').trigger('click');
+    const credits = first.findAll('.stats-grid dd')[0].text();
+    const hands = first.findAll('.stats-grid dd')[2].text();
+    first.unmount();
+
+    const restored = mountGame();
+    expect(restored.findAll('.stats-grid dd')[0].text()).toBe(credits);
+    expect(restored.findAll('.stats-grid dd')[2].text()).toBe(hands);
+    expect(restored.find('button.primary-action').text()).toBe('Next Hand');
+  });
+
+  it('resets saved credits and statistics from the reset button', async () => {
+    const wrapper = mountGame();
+    const headerButtons = wrapper.findAll('.game-header button');
+    expect(headerButtons[2].classes()).toContain('reset-action');
+    expect(wrapper.find('.reset-action').attributes('aria-label')).toBe('Reset everything');
+    expect(wrapper.find('.reset-action').text()).toBe('🔄');
+
+    await wrapper.find('button.primary-action').trigger('click');
+    await wrapper.find('.reset-action').trigger('click');
+
+    const values = wrapper.findAll('.stats-grid dd');
+    expect(values[0].text()).toBe('98.75');
+    expect(values[2].text()).toBe('1');
+    expect(values[3].text()).toBe('1.25');
   });
 
   it('shows the pay table with base and at-current-wager payouts', async () => {

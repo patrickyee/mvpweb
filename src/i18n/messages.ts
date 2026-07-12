@@ -44,6 +44,7 @@ export interface LocaleMessages {
   autoPlaySpeedLabel: string;
   cancel: string;
   newGame: string;
+  resetEverything: string;
   settings: string;
   closeSettings: string;
   wagerPerCardLabel: string;
@@ -123,6 +124,7 @@ export const messages: Record<Locale, LocaleMessages> = {
     autoPlaySpeedLabel: 'Auto play speed',
     cancel: 'Cancel',
     newGame: 'New game',
+    resetEverything: 'Reset everything',
     settings: 'Settings',
     closeSettings: 'Close settings',
     wagerPerCardLabel: 'Wager per card',
@@ -247,6 +249,7 @@ export const messages: Record<Locale, LocaleMessages> = {
     autoPlaySpeedLabel: '自動模式速度',
     cancel: '取消',
     newGame: '重新開始',
+    resetEverything: '重設全部',
     settings: '設定',
     closeSettings: '關閉設定',
     wagerPerCardLabel: '每張下注',
